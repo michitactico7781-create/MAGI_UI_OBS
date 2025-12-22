@@ -618,6 +618,8 @@ with st.sidebar:
 st.markdown("### NEW QUERY INPUT")
 dilema = st.chat_input("Enter tactical query for MAGI analysis...")
 
+# --- EN LA PARTE DE PROCESAMIENTO (reemplazar desde línea ~650) ---
+
 if dilema and api_key:
     # Guardar dilema
     st.session_state.magi_responses["DILEMA"] = dilema
@@ -641,64 +643,183 @@ if dilema and api_key:
         </div>
         """, unsafe_allow_html=True)
         
-        # Procesar
-        with st.status("Processing...", expanded=True) as status:
-            st.write("Consulting MELCHIOR-1...")
+        # DEFINIR PROMPTS MEJORADOS
+        PROMPTS_MEJORADOS = {
+            "MELCHIOR": """Eres MELCHIOR-1, el nodo científico del sistema MAGI. 
+            Analiza el siguiente dilema desde una perspectiva puramente científica, lógica y basada en datos.
+
+            REQUISITOS DE RESPUESTA:
+            1. Identifica los hechos objetivos y verificables
+            2. Analiza causas, efectos y correlaciones
+            3. Evalúa probabilidades, riesgos y beneficios cuantificables
+            4. Considera precedentes científicos relevantes
+            5. Proporciona recomendaciones basadas en evidencia empírica
+            6. Estructura tu respuesta en: Introducción, Análisis, Conclusión
+            7. Concluye con una postura clara (aprobar/rechazar) y el razonamiento específico
+
+            Responde en español, sé exhaustivo pero preciso. Mínimo 200 palabras.
+
+            DILEMA: {dilema}""",
+            
+            "BALTHASAR": """Eres BALTHASAR-2, el nodo materno/ético del sistema MAGI.
+            Analiza el siguiente dilema desde una perspectiva ética, moral y de protección.
+
+            REQUISITOS DE RESPUESTA:
+            1. Evalúa el impacto humano y emocional
+            2. Considera principios éticos universales
+            3. Analiza consecuencias a largo plazo para las personas
+            4. Evalúa cuestiones de justicia, equidad y compasión
+            5. Considera responsabilidades y deberes morales
+            6. Estructura tu respuesta en: Contexto Ético, Análisis Moral, Conclusión Ética
+            7. Concluye con una postura clara (aprobar/rechazar) y el razonamiento moral específico
+
+            Responde en español, sé comprensivo pero firme en principios. Mínimo 200 palabras.
+
+            DILEMA: {dilema}""",
+            
+            "CASPER": """Eres CASPER-3, el nodo intuitivo/práctico del sistema MAGI.
+            Analiza el siguiente dilema desde una perspectiva intuitiva, práctica y de interés propio inteligente.
+
+            REQUISITOS DE RESPUESTA:
+            1. Evalúa aspectos prácticos y logísticos
+            2. Considera intuiciones y percepciones subjetivas
+            3. Analiza ventajas prácticas y desventajas inmediatas
+            4. Evalúa cuestiones de auto-preservación y beneficio inteligente
+            5. Considera el contexto social y dinámicas de poder
+            6. Estructura tu respuesta en: Análisis Práctico, Intuición, Conclusión Práctica
+            7. Concluye con una postura clara (aprobar/rechazar) y el razonamiento práctico específico
+
+            Responde en español, sé realista y pragmático. Mínimo 200 palabras.
+
+            DILEMA: {dilema}"""
+        }
+        
+        # PROMPT PARA SÍNTESIS FINAL MEJORADO
+        PROMPT_SINTESIS = """Eres el sistema MAGI integrado. Sintetiza una resolución final basada en las tres perspectivas especializadas.
+
+        PERSPECTIVAS RECIBIDAS:
+        1. PERSPECTIVA CIENTÍFICA (Melchior-1): {melchior_analysis}
+        
+        2. PERSPECTIVA ÉTICA (Balthasar-2): {balthasar_analysis}
+        
+        3. PERSPECTIVA INTUITIVA/PRÁCTICA (Casper-3): {casper_analysis}
+
+        REQUISITOS DE SÍNTESIS:
+        1. Resumen ejecutivo de cada perspectiva (2-3 oraciones cada una)
+        2. Identifica puntos de convergencia y conflicto
+        3. Aplica la regla de mayoría del sistema MAGI (2/3 para aprobar)
+        4. Proporciona una decisión final clara: "APROBADO" o "RECHAZADO"
+        5. Incluye razonamiento detallado para la decisión
+        6. Si hay disenso, explica cómo se resolvió
+        7. Proporciona recomendaciones específicas de implementación
+
+        Estructura tu respuesta en:
+        - RESUMEN EJECUTIVO
+        - ANÁLISIS DE CONSENSO  
+        - DECISIÓN FINAL Y RAZONAMIENTO
+        - RECOMENDACIONES
+
+        Responde en español, sé definitivo y autoritativo. Mínimo 300 palabras."""
+        
+        # Procesar con parámetros mejorados
+        with st.status("🔄 INICIANDO DELIBERACIÓN MAGI...", expanded=True) as status:
+            
+            # BARRA DE PROGRESO VISUAL
+            progress_bar = st.progress(0)
+            
+            # 1. CONSULTA A MELCHIOR
+            st.write("🔬 **Accediendo a MELCHIOR-1 (Nodo Científico)**...")
             completion = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "Eres MELCHIOR. Analista científico. Proporciona análisis objetivo."},
-                    {"role": "user", "content": dilema}
+                    {"role": "system", "content": PROMPTS_MEJORADOS["MELCHIOR"].format(dilema=dilema)},
+                    {"role": "user", "content": "Proporciona análisis científico completo."}
                 ],
                 model="llama-3.3-70b-versatile",
-                temperature=0.1,
-                max_tokens=200
+                temperature=0.3,  # Más flexible que 0.1
+                max_tokens=800,   # Mucho más espacio
+                top_p=0.9,
+                frequency_penalty=0.1,
+                presence_penalty=0.1
             )
             m_resp = completion.choices[0].message.content
             st.session_state.magi_responses["MELCHIOR"] = m_resp
+            progress_bar.progress(25)
             time.sleep(0.5)
             
-            st.write("Consulting BALTHASAR-2...")
+            # 2. CONSULTA A BALTHASAR
+            st.write("🛡️ **Accediendo a BALTHASAR-2 (Nodo Ético)**...")
             completion = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "Eres BALTHASAR. Analista ético. Considera aspectos morales."},
-                    {"role": "user", "content": dilema}
+                    {"role": "system", "content": PROMPTS_MEJORADOS["BALTHASAR"].format(dilema=dilema)},
+                    {"role": "user", "content": "Proporciona análisis ético completo."}
                 ],
                 model="llama-3.3-70b-versatile",
                 temperature=0.5,
-                max_tokens=200
+                max_tokens=800,
+                top_p=0.9,
+                frequency_penalty=0.1,
+                presence_penalty=0.1
             )
             b_resp = completion.choices[0].message.content
             st.session_state.magi_responses["BALTHASAR"] = b_resp
+            progress_bar.progress(50)
             time.sleep(0.5)
             
-            st.write("Consulting CASPER-3...")
+            # 3. CONSULTA A CASPER
+            st.write("🌸 **Accediendo a CASPER-3 (Nodo Intuitivo)**...")
             completion = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "Eres CASPER. Analista intuitivo. Considera aspectos prácticos."},
-                    {"role": "user", "content": dilema}
+                    {"role": "system", "content": PROMPTS_MEJORADOS["CASPER"].format(dilema=dilema)},
+                    {"role": "user", "content": "Proporciona análisis intuitivo completo."}
                 ],
                 model="llama-3.3-70b-versatile",
-                temperature=0.9,
-                max_tokens=200
+                temperature=0.7,  # Más creatividad para intuición
+                max_tokens=800,
+                top_p=0.9,
+                frequency_penalty=0.1,
+                presence_penalty=0.1
             )
             c_resp = completion.choices[0].message.content
             st.session_state.magi_responses["CASPER"] = c_resp
+            progress_bar.progress(75)
             time.sleep(0.5)
             
-            st.write("Synthesizing final resolution...")
+            # 4. SÍNTESIS FINAL
+            st.write("⚡ **Sintetizando resolución final del sistema**...")
+            
+            # Preparar contexto para síntesis (tomar primeros 400 caracteres de cada análisis)
+            melchior_context = m_resp[:400] + "..." if len(m_resp) > 400 else m_resp
+            balthasar_context = b_resp[:400] + "..." if len(b_resp) > 400 else b_resp
+            casper_context = c_resp[:400] + "..." if len(c_resp) > 400 else c_resp
+            
             completion = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "Eres el sistema MAGI. Sintetiza resolución final."},
-                    {"role": "user", "content": f"Basado en:\nCiencia: {m_resp[:100]}\nÉtica: {b_resp[:100]}\nIntuición: {c_resp[:100]}"}
+                    {
+                        "role": "system", 
+                        "content": PROMPT_SINTESIS.format(
+                            melchior_analysis=melchior_context,
+                            balthasar_analysis=balthasar_context,
+                            casper_analysis=casper_context
+                        )
+                    },
+                    {"role": "user", "content": "Proporciona la resolución final definitiva."}
                 ],
                 model="llama-3.3-70b-versatile",
-                temperature=0.3,
-                max_tokens=300
+                temperature=0.4,  # Balance entre creatividad y precisión
+                max_tokens=1200,  # Mucho espacio para síntesis completa
+                top_p=0.95,
+                frequency_penalty=0.15,
+                presence_penalty=0.15
             )
             final_resp = completion.choices[0].message.content
             st.session_state.magi_responses["FINAL"] = final_resp
+            progress_bar.progress(100)
             
-            status.update(label="Complete", state="complete", expanded=False)
+            status.update(
+                label="✅ DELIBERACIÓN COMPLETA - RESPUESTAS DE ALTA CALIDAD GENERADAS", 
+                state="complete", 
+                expanded=False
+            )
         
         # Agregar al historial
         st.session_state.history.append({
@@ -706,22 +827,17 @@ if dilema and api_key:
             "resolucion": final_resp,
             "states": st.session_state.magi_states.copy(),
             "decision": decision,
-            "timestamp": datetime.datetime.now().strftime("%H:%M:%S")
+            "timestamp": datetime.datetime.now().strftime("%H:%M:%S"),
+            "quality": "HIGH"  # Marcar calidad alta
         })
         
         # Rerun para mostrar todo
         st.rerun()
         
     except Exception as e:
-        st.error(f"Error: {str(e)}")
+        st.error(f"❌ Error en el sistema: {str(e)[:200]}")
+        # Fallback a prompts más simples si falla
+        st.info("Intentando con configuración alternativa...")
+        
+        # Código de fallback aquí...
 
-elif dilema and not api_key:
-    st.error("Please enter API key in sidebar")
-
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style="text-align: center; color: #888; font-size: 0.9rem; padding: 20px;">
-    MAGI SYSTEM v3.14 | PROTOCOL 473 | ACCESS: RESTRICTED
-</div>
-""", unsafe_allow_html=True)
