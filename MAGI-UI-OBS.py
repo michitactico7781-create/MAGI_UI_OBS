@@ -3,27 +3,35 @@ from groq import Groq
 from fpdf import FPDF
 import datetime
 import time
-import base64
 import unicodedata
 from io import BytesIO
+import random
 
 # --- CONFIGURACIÓN E HISTORIAL ---
 if "history" not in st.session_state:
     st.session_state.history = []
 
-def add_to_history(dilema, final):
-    st.session_state.history.append({"dilema": dilema, "resolucion": final})
+if "toxicity_level" not in st.session_state:
+    st.session_state.toxicity_level = 30
 
-# --- FUNCIÓN DE EFECTO DE SONIDO (HACK DE AUTOPLAY) ---
-def play_magi_sound():
-    # Sonido de 'data processing' (puedes cambiar el link por un .mp3 de NERV)
-    sound_url = "https://www.soundjay.com/communication/beep-07.mp3"
-    html_str = f"""
-        <audio autoplay>
-            <source src="{sound_url}" type="audio/mpeg">
-        </audio>
-    """
-    st.markdown(html_str, unsafe_allow_html=True)
+if "magi_states" not in st.session_state:
+    st.session_state.magi_states = {"MELCHIOR": "承 認", "BALTHASAR": "承 認", "CASPER": "承 認"}
+
+def add_to_history(dilema, final):
+    st.session_state.history.append({
+        "dilema": dilema, 
+        "resolucion": final,
+        "timestamp": datetime.datetime.now().strftime("%H:%M:%S")
+    })
+
+def update_toxicity():
+    """Actualiza el nivel de toxicidad mental"""
+    st.session_state.toxicity_level = min(100, st.session_state.toxicity_level + random.randint(5, 15))
+
+def get_majority_decision():
+    """Determina decisión por mayoría (2 de 3)"""
+    approvals = sum(1 for state in st.session_state.magi_states.values() if state == "承 認")
+    return "APPROVED" if approvals >= 2 else "DENIED"
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
@@ -33,467 +41,753 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- ESTILOS CSS AVANZADOS (FUI - Futuristic User Interface) ---
+# --- ESTILOS CSS MEJORADO (Fiel a descripción Gemini) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-
-    /* FONDO Y GENERAL */
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+    
+    /* FONDO Y GENERAL - Mejorado con elementos de referencia */
     .stApp {
         background-color: #050505;
-        background-image: linear-gradient(0deg, transparent 24%, rgba(255, 102, 0, .05) 25%, rgba(255, 102, 0, .05) 26%, transparent 27%, transparent 74%, rgba(255, 102, 0, .05) 75%, rgba(255, 102, 0, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 102, 0, .05) 25%, rgba(255, 102, 0, .05) 26%, transparent 27%, transparent 74%, rgba(255, 102, 0, .05) 75%, rgba(255, 102, 0, .05) 76%, transparent 77%, transparent);
-        background-size: 50px 50px;
         color: #ff6600;
-        font-family: 'Share Tech Mono', monospace;
-    }
-
-    /* TEXTOS */
-    h1, h2, h3, p, div, span, label, .stMarkdown, button {
-        font-family: 'Share Tech Mono', monospace !important;
-        color: #ff6600 !important;
-        text-shadow: 0 0 5px rgba(255, 102, 0, 0.5);
+        font-family: 'Orbitron', 'Share Tech Mono', monospace;
+        position: relative;
+        overflow-x: hidden;
     }
     
-    /* INPUTS */
-    .stTextInput>div>div>input {
-        background-color: #111;
-        color: #ff6600;
-        border: 1px solid #ff6600;
-        font-family: 'Share Tech Mono', monospace;
+    /* Patrón de hexágonos en fondo (Honeycomb pattern) */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(255, 102, 0, 0.03) 1px, transparent 2px),
+            radial-gradient(circle at 75% 75%, rgba(0, 255, 200, 0.02) 1px, transparent 2px);
+        background-size: 80px 80px;
+        z-index: -1;
+        opacity: 0.4;
     }
-
-    /* TARJETAS DE LOS NODOS (MAGI CARDS) */
+    
+    /* Líneas de escaneo CRT */
+    .stApp::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to bottom,
+            transparent 50%,
+            rgba(0, 255, 200, 0.03) 50%
+        );
+        background-size: 100% 4px;
+        z-index: -1;
+        pointer-events: none;
+        animation: scanline 10s linear infinite;
+    }
+    
+    @keyframes scanline {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+    }
+    
+    /* TEXTOS - Mejor tipografía */
+    h1, h2, h3 {
+        font-family: 'Orbitron', sans-serif !important;
+        font-weight: 900 !important;
+        color: #ff6600 !important;
+        text-shadow: 0 0 10px rgba(255, 102, 0, 0.7);
+        letter-spacing: 2px;
+    }
+    
+    .kanji-text {
+        font-family: 'MS Gothic', 'MS Mincho', monospace;
+        font-weight: bold;
+        color: #00FFC8;
+    }
+    
+    .warning-text {
+        color: #FF0000 !important;
+        animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+    }
+    
+    /* HEXAGONOS MAGI - Diseño trapezoidal */
+    .magi-hexagon {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, rgba(0, 153, 255, 0.1), rgba(0, 153, 255, 0.3));
+        clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+        border: 2px solid #0099FF;
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(0, 153, 255, 0.5);
+    }
+    
+    .magi-hexagon:hover {
+        box-shadow: 0 0 30px rgba(0, 153, 255, 0.8);
+        transform: translateY(-5px);
+    }
+    
+    .magi-hexagon.approved {
+        border-color: #00FFC8;
+        box-shadow: 0 0 25px rgba(0, 255, 200, 0.6);
+    }
+    
+    .magi-hexagon.denied {
+        border-color: #FF0000;
+        box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+    }
+    
+    .magi-status {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    
+    .status-approved {
+        color: #00FFC8;
+        text-shadow: 0 0 15px rgba(0, 255, 200, 0.8);
+    }
+    
+    .status-denied {
+        color: #FF0000;
+        text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+    }
+    
+    /* BARRAS DE TOXICIDAD */
+    .toxicity-container {
+        background: rgba(0, 20, 40, 0.7);
+        border: 1px solid #0099FF;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+    
+    .toxicity-bar {
+        height: 30px;
+        background: linear-gradient(90deg, #00FFC8, #0099FF, #7D00FF);
+        margin: 5px 0;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+        box-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
+    }
+    
+    /* TARJETAS DE LOS NODOS - Versión mejorada */
     .magi-card {
         border: 2px solid #ff6600;
-        background-color: rgba(20, 10, 0, 0.8);
-        padding: 20px;
-        margin-bottom: 15px;
+        background: linear-gradient(145deg, rgba(20, 10, 0, 0.9), rgba(40, 20, 0, 0.7));
+        padding: 25px;
+        margin-bottom: 20px;
         position: relative;
-        clip-path: polygon(
-            15px 0, 100% 0, 
-            100% calc(100% - 15px), calc(100% - 15px) 100%, 
-            0 100%, 0 15px
-        );
-        box-shadow: inset 0 0 20px rgba(255, 102, 0, 0.2);
+        overflow: hidden;
+        box-shadow: 0 0 25px rgba(255, 102, 0, 0.3);
+    }
+    
+    .magi-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 102, 0, 0.1), transparent);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
     }
     
     .node-title {
-        font-size: 1.5em;
-        border-bottom: 1px solid #ff6600;
-        margin-bottom: 10px;
-        letter-spacing: 2px;
+        font-size: 1.8em;
+        border-bottom: 2px solid #ff6600;
+        margin-bottom: 15px;
+        letter-spacing: 3px;
         text-align: center;
-        font-weight: bold;
-    }
-
-    /* LÍNEA DECORATIVA */
-    .deco-line {
-        height: 2px;
-        background: repeating-linear-gradient(to right, #ff6600, #ff6600 10px, transparent 10px, transparent 20px);
-        margin: 20px 0;
-        opacity: 0.7;
+        font-weight: 900;
+        text-transform: uppercase;
+        padding-bottom: 10px;
     }
     
-    /* BOTONES */
-    .stButton>button {
-        border: 2px solid #ff6600;
-        background-color: transparent;
-        border-radius: 0;
-        transition: 0.3s;
+    /* LÍNEA DECORATIVA MEJORADA */
+    .deco-line {
+        height: 3px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            #ff6600 20%, 
+            #00FFC8 50%, 
+            #ff6600 80%, 
+            transparent
+        );
+        margin: 30px 0;
+        opacity: 0.8;
     }
-    .stButton>button:hover {
-        background-color: #ff6600;
+    
+    /* BOTONES MEJORADOS */
+    .stButton > button {
+        border: 2px solid #ff6600;
+        background: linear-gradient(145deg, rgba(255, 102, 0, 0.1), rgba(255, 102, 0, 0.3));
+        color: #ff6600 !important;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: bold;
+        border-radius: 0;
+        transition: all 0.3s;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 12px 24px;
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(145deg, #ff6600, #ff8533);
         color: black !important;
-        box-shadow: 0 0 15px #ff6600;
+        box-shadow: 0 0 25px #ff6600;
+        transform: translateY(-2px);
+    }
+    
+    /* INPUTS MEJORADOS */
+    .stTextInput > div > div > input,
+    .stChatInput > div > div > textarea {
+        background-color: rgba(10, 10, 10, 0.9) !important;
+        color: #ff6600 !important;
+        border: 2px solid #ff6600 !important;
+        font-family: 'Share Tech Mono', monospace !important;
+        border-radius: 0 !important;
+        font-size: 1.1rem !important;
+        letter-spacing: 1px;
+    }
+    
+    .stChatInput > div > div > textarea::placeholder {
+        color: #ff660066 !important;
+        font-style: italic;
+    }
+    
+    /* STATUS INDICATORS */
+    .status-indicator {
+        display: inline-block;
+        padding: 5px 15px;
+        margin: 0 10px;
+        border-radius: 3px;
+        font-weight: bold;
+        font-family: 'Orbitron', sans-serif;
+        letter-spacing: 1px;
+    }
+    
+    .status-online {
+        background: rgba(0, 255, 200, 0.2);
+        border: 1px solid #00FFC8;
+        color: #00FFC8;
+    }
+    
+    .status-warning {
+        background: rgba(255, 0, 0, 0.2);
+        border: 1px solid #FF0000;
+        color: #FF0000;
+        animation: blink 1s infinite;
+    }
+    
+    /* PANEL DE DECISIÓN */
+    .decision-panel {
+        background: linear-gradient(145deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 60, 0.7));
+        border: 2px solid #0099FF;
+        padding: 25px;
+        margin: 30px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .decision-panel::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #ff6600, #00FFC8, #0099FF);
+    }
+    
+    /* Cursor parpadeante */
+    .blinking-cursor {
+        display: inline-block;
+        width: 10px;
+        height: 1.2em;
+        background-color: #ff6600;
+        margin-left: 5px;
+        animation: blink 1s infinite;
+        vertical-align: middle;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- FUNCIONES AUXILIARES MEJORADAS ---
+# --- FUNCIONES AUXILIARES ---
 
-def stream_data(text, speed=0.01):
-    """Efecto de lluvia de texto"""
-    for word in text.split(" "):
+def stream_data(text, speed=0.02):
+    """Efecto de escritura terminal con delay aleatorio"""
+    words = text.split(" ")
+    for word in words:
         yield word + " "
-        time.sleep(speed)
+        time.sleep(speed + random.uniform(0, 0.01))  # Variación aleatoria
 
 def limpiar_texto_para_pdf(texto):
     """Limpia texto para compatibilidad con FPDF"""
     if not texto:
         return ""
     
-    # Reemplazar caracteres problemáticos comunes
     reemplazos = {
         'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
         'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
         'ñ': 'n', 'Ñ': 'N',
         '¿': '?', '¡': '!',
         '—': '-', '–': '-', '…': '...',
-        '«': '"', '»': '"', '“': '"', '”': '"', '‘': "'", '’': "'",
-        '€': 'EUR', '£': 'GBP', '¥': 'YEN',
-        '°': 'deg', '±': '+/-', '×': 'x', '÷': '/',
-        'α': 'alpha', 'β': 'beta', 'γ': 'gamma',
-        '→': '->', '←': '<-', '↑': 'up', '↓': 'down',
+        '«': '"', '»': '"', '「': '"', '」': '"',
     }
     
     for char, repl in reemplazos.items():
         texto = texto.replace(char, repl)
     
-    # Intentar convertir a ASCII (lo más seguro para FPDF)
     try:
-        # Primero normalizar
         texto = unicodedata.normalize('NFKD', texto)
         texto = texto.encode('ascii', 'ignore').decode('ascii')
     except:
-        # Si falla, mantener solo caracteres imprimibles ASCII
         texto = ''.join(c if 32 <= ord(c) < 127 else '?' for c in texto)
     
-    # Limitar longitud para evitar problemas
     if len(texto) > 1000:
-        texto = texto[:1000] + "\n[...CONTINUED IN SYSTEM ARCHIVES...]"
+        texto = texto[:1000] + "\n[...CONTINUED...]"
     
     return texto
 
-def crear_pdf_corregido(dilema, m, b, c, final):
-    """Generador de Reportes NERV - VERSIÓN CORREGIDA (PDF VISIBLE)"""
+def crear_pdf_mejorado(dilema, m, b, c, final):
+    """Generador de Reportes NERV - Versión mejorada"""
     try:
         pdf = FPDF()
         pdf.add_page()
         
-        # IMPORTANTE: Usar fondo blanco para texto visible
-        # pdf.set_fill_color(255, 255, 255)  # Fondo blanco (opcional)
-        # pdf.rect(0, 0, 210, 297, 'F')
+        # Encabezado con diseño profesional
+        pdf.set_font("Courier", "B", 20)
+        pdf.set_text_color(255, 102, 0)  # Naranja principal
+        pdf.cell(0, 15, "▌ MAGI SYSTEM - CLASSIFIED REPORT ▌", ln=True, align='C')
         
-        # Título - NEGRO sobre fondo blanco
-        pdf.set_font("Courier", "B", 16)
-        pdf.set_text_color(0, 0, 0)  # NEGRO (visible siempre)
-        pdf.cell(190, 10, "MAGI SYSTEM - CLASSIFIED REPORT", ln=True, align='C')
-        pdf.ln(10)
-        
-        # Fecha y código
-        pdf.set_font("Courier", "", 10)
-        pdf.set_text_color(50, 50, 50)  # Gris oscuro
+        # Información del sistema
+        pdf.set_font("Courier", "B", 10)
+        pdf.set_text_color(0, 153, 255)  # Azul eléctrico
         fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        pdf.cell(0, 8, f"FECHA: {fecha} | CODIGO: 473", ln=True)
-        pdf.ln(5)
+        pdf.cell(0, 8, f"CODE: 473 | PRIORITY: AAA | FILE: MAGI_SYS", ln=True)
+        pdf.cell(0, 8, f"TIMESTAMP: {fecha}", ln=True)
+        pdf.cell(0, 8, f"SECURITY LEVEL: MAXIMUM", ln=True)
         
-        # Limpiar todos los textos antes de usarlos
-        dilema_limpio = limpiar_texto_para_pdf(dilema)
-        m_limpio = limpiar_texto_para_pdf(m)
-        b_limpio = limpiar_texto_para_pdf(b)
-        c_limpio = limpiar_texto_para_pdf(c)
-        final_limpio = limpiar_texto_para_pdf(final)
-        
-        # Input dilema
-        pdf.set_font("Courier", "B", 12)
-        pdf.set_text_color(0, 0, 0)  # NEGRO
-        pdf.cell(0, 10, "INPUT DILEMA:", ln=True)
-        pdf.set_font("Courier", "", 10)
-        pdf.set_text_color(30, 30, 30)  # Gris muy oscuro
-        pdf.multi_cell(0, 6, dilema_limpio[:500])  # Limitar longitud
         pdf.ln(10)
         
         # Línea divisoria
-        pdf.set_draw_color(0, 0, 0)
+        pdf.set_draw_color(255, 102, 0)
         pdf.set_line_width(0.5)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-        pdf.ln(10)
-        
-        # Nodos MAGI
-        pdf.set_font("Courier", "B", 14)
-        pdf.set_text_color(0, 0, 0)  # NEGRO
-        pdf.cell(0, 12, "MAGI SYSTEM ANALYSIS", ln=True)
-        pdf.ln(8)
-        
-        # MELCHIOR-1 (usando naranja para título, texto negro)
-        pdf.set_font("Courier", "B", 11)
-        pdf.set_text_color(255, 102, 0)  # Naranja para título
-        pdf.cell(0, 10, "--- MELCHIOR-1 (SCIENCE) ---", ln=True)
-        pdf.set_font("Courier", "", 9)
-        pdf.set_text_color(0, 0, 0)  # NEGRO para contenido
-        pdf.multi_cell(0, 5, m_limpio[:800])  # Limitar longitud
-        pdf.ln(8)
-        
-        # BALTHASAR-2
-        pdf.set_font("Courier", "B", 11)
-        pdf.set_text_color(255, 102, 0)  # Naranja
-        pdf.cell(0, 10, "--- BALTHASAR-2 (MOTHER) ---", ln=True)
-        pdf.set_font("Courier", "", 9)
-        pdf.set_text_color(0, 0, 0)  # NEGRO
-        pdf.multi_cell(0, 5, b_limpio[:800])
-        pdf.ln(8)
-        
-        # CASPER-3
-        pdf.set_font("Courier", "B", 11)
-        pdf.set_text_color(255, 102, 0)  # Naranja
-        pdf.cell(0, 10, "--- CASPER-3 (WOMAN) ---", ln=True)
-        pdf.set_font("Courier", "", 9)
-        pdf.set_text_color(0, 0, 0)  # NEGRO
-        pdf.multi_cell(0, 5, c_limpio[:800])
         pdf.ln(15)
         
-        # Línea divisoria
-        pdf.set_draw_color(255, 0, 0)  # Rojo
-        pdf.set_line_width(0.8)
-        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        # Sección de pregunta
+        pdf.set_font("Courier", "B", 12)
+        pdf.set_text_color(255, 102, 0)
+        pdf.cell(0, 10, "質問 (QUESTION):", ln=True)
+        pdf.set_font("Courier", "", 10)
+        pdf.set_text_color(200, 200, 200)
+        pdf.multi_cell(0, 6, limpiar_texto_para_pdf(dilema)[:400])
         pdf.ln(10)
         
-        # DECISIÓN FINAL
-        pdf.set_font("Courier", "B", 13)
-        pdf.set_text_color(255, 0, 0)  # Rojo para título final
-        pdf.cell(0, 12, "--- FINAL DECISION ---", ln=True)
-        pdf.set_font("Courier", "B", 10)
-        pdf.set_text_color(0, 0, 0)  # NEGRO para contenido
-        pdf.multi_cell(0, 6, final_limpio[:600])
+        # Deliberación del Triunvirato
+        pdf.set_font("Courier", "B", 14)
+        pdf.set_text_color(0, 255, 200)  # Verde neón
+        pdf.cell(0, 12, "▌ MAGI TRIUMVIRATE DELIBERATION ▌", ln=True)
+        pdf.ln(8)
+        
+        # Respuestas de cada nodo
+        nodos = [
+            ("MELCHIOR-1 (SCIENCE)", m, 0, 153, 255),
+            ("BALTHASAR-2 (MOTHER)", b, 255, 102, 0),
+            ("CASPER-3 (WOMAN)", c, 0, 255, 200)
+        ]
+        
+        for nombre, contenido, r, g, b_color in nodos:
+            pdf.set_font("Courier", "B", 11)
+            pdf.set_text_color(r, g, b_color)
+            pdf.cell(0, 10, f"» {nombre}", ln=True)
+            pdf.set_font("Courier", "", 9)
+            pdf.set_text_color(180, 180, 180)
+            contenido_limpio = limpiar_texto_para_pdf(contenido)
+            pdf.multi_cell(0, 5, contenido_limpio[:600])
+            pdf.ln(5)
+        
+        # Línea divisoria final
+        pdf.set_draw_color(255, 0, 0)
+        pdf.set_line_width(0.8)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(15)
+        
+        # Decisión final
+        pdf.set_font("Courier", "B", 16)
+        pdf.set_text_color(255, 0, 0)  # Rojo de alerta
+        pdf.cell(0, 12, "解決 (SOLUTION):", ln=True)
+        pdf.set_font("Courier", "B", 11)
+        pdf.set_text_color(255, 255, 255)
+        final_limpio = limpiar_texto_para_pdf(final)
+        pdf.multi_cell(0, 7, final_limpio[:800])
+        
+        # Estado del sistema
+        pdf.ln(15)
+        pdf.set_font("Courier", "I", 9)
+        pdf.set_text_color(100, 100, 100)
+        pdf.cell(0, 8, f"MENTAL TOXICITY LEVEL: {st.session_state.toxicity_level}%", ln=True)
+        pdf.cell(0, 8, f"SYNCHRONIZATION: 99.9% | DECISION: {get_majority_decision()}", ln=True)
         
         # Pie de página
         pdf.set_y(-30)
         pdf.set_font("Courier", "I", 8)
-        pdf.set_text_color(100, 100, 100)  # Gris
-        pdf.cell(0, 10, "NERV CONFIDENTIAL - UNAUTHORIZED ACCESS PROHIBITED", ln=True, align='C')
+        pdf.set_text_color(80, 80, 80)
+        pdf.cell(0, 10, "CLASSIFIED - NERV EYES ONLY - UNAUTHORIZED ACCESS: TERMINATION", ln=True, align='C')
         
-        # Generar PDF de forma segura
-        try:
-            return pdf.output(dest='S').encode('latin-1', 'ignore')
-        except:
-            # Fallback alternativo
-            output_str = pdf.output(dest='S')
-            return output_str.encode('latin-1', 'ignore')
-            
+        return pdf.output(dest='S').encode('latin-1', 'ignore')
+        
     except Exception as e:
-        st.error(f"Error en generación de PDF: {str(e)[:100]}")
-        # Fallback: crear un PDF simple de emergencia
-        return crear_pdf_simple_fallback(dilema, m, b, c, final)
+        st.error(f"PDF Error: {str(e)[:100]}")
+        # Fallback simple
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Courier", "B", 16)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 10, "MAGI SYSTEM REPORT", ln=True)
+        pdf.set_font("Courier", "", 10)
+        pdf.multi_cell(0, 6, f"Input: {dilema[:200]}\n\nFinal: {final[:500]}")
+        return pdf.output(dest='S').encode('latin-1', 'ignore')
 
-def crear_pdf_simple_fallback(dilema, m, b, c, final):
-    """Fallback ultra-simple si todo falla"""
-    pdf = FPDF()
-    pdf.add_page()
-    
-    # Solo texto negro básico
-    pdf.set_font("Courier", "B", 14)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, "MAGI SYSTEM REPORT (EMERGENCY)", ln=True)
-    pdf.ln(10)
-    
-    pdf.set_font("Courier", "", 10)
-    
-    # Contenido muy simplificado
-    contenido = f"""
-    Date: {datetime.datetime.now()}
-    
-    INPUT: {dilema[:200]}
-    
-    MELCHIOR: {m[:300]}
-    
-    BALTHASAR: {b[:300]}
-    
-    CASPER: {c[:300]}
-    
-    FINAL: {final[:400]}
-    """
-    
-    # Limpiar texto
-    contenido_limpio = limpiar_texto_para_pdf(contenido)
-    pdf.multi_cell(0, 6, contenido_limpio)
-    
-    return pdf.output(dest='S').encode('latin-1', 'ignore')
+# --- INTERFAZ PRINCIPAL MEJORADA ---
 
-# --- INTERFAZ PRINCIPAL (IGUAL A LA TUYA) ---
+# Header con elementos de referencia
+col1, col2, col3 = st.columns([2, 1, 2])
 
-# Cabecera
-col_logo, col_title = st.columns([1, 6])
-with col_logo:
+with col1:
     st.markdown("""
-    <div style="border: 2px solid #ff6600; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; transform: rotate(45deg); margin-top: 10px; box-shadow: 0 0 10px #ff6600;">
-        <div style="width: 30px; height: 30px; background-color: #ff6600;"></div>
+    <div style="text-align: left;">
+        <h1 style="margin-bottom: 5px;">⬢ MAGI SYSTEM</h1>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <span class="status-indicator status-online">ONLINE</span>
+            <span class="status-indicator status-warning">PROTOCOL 473</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
-with col_title:
-    st.markdown("# ⬢ MAGI SYSTEM: SUPERCOMPUTING CENTER")
-    st.markdown("**ESTADO:** `ONLINE` | **SINCRONIZACIÓN:** `99.9%`")
+
+with col2:
+    st.markdown(f"""
+    <div style="text-align: center;">
+        <div style="font-size: 3rem; font-weight: 900; color: #ff6600; text-shadow: 0 0 20px #ff6600;">
+            CODE:473
+        </div>
+        <div style="color: #00FFC8; font-family: 'Orbitron'; font-size: 0.9rem;">
+            PRIORITY: AAA
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col3:
+    current_time = datetime.datetime.now().strftime("%H:%M:%S")
+    st.markdown(f"""
+    <div style="text-align: right;">
+        <div style="font-family: 'Orbitron'; font-size: 1.2rem; color: #0099FF;">
+            {datetime.datetime.now().strftime("YY%y-%m-%d")}
+        </div>
+        <div style="font-family: 'Digital-7', monospace; font-size: 1.5rem; color: #00FFC8;">
+            {current_time}
+        </div>
+        <div style="color: #888; font-size: 0.9rem;">
+            SUPERCOMPUTING CENTER
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
 
-# Sidebar para API Key
+# --- TRIUNVIRATO MAGI (Elemento central) ---
+st.markdown("### <span class='kanji-text'>三賢者の審議</span> - MAGI TRIUMVIRATE", unsafe_allow_html=True)
+
+# Mostrar hexágonos de los nodos MAGI
+col_mel, col_bal, col_cas = st.columns(3)
+
+with col_mel:
+    estado_mel = st.session_state.magi_states["MELCHIOR"]
+    clase_estado = "approved" if estado_mel == "承 認" else "denied"
+    st.markdown(f"""
+    <div class="magi-hexagon {clase_estado}">
+        <div style="font-size: 1.5rem; color: #0099FF; font-weight: bold;">MELCHIOR-1</div>
+        <div style="color: #aaa; font-size: 0.9rem;">SCIENCE MODULE</div>
+        <div class="magi-status {'status-approved' if estado_mel == '承 認' else 'status-denied'}">
+            {estado_mel}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_bal:
+    estado_bal = st.session_state.magi_states["BALTHASAR"]
+    clase_estado = "approved" if estado_bal == "承 認" else "denied"
+    st.markdown(f"""
+    <div class="magi-hexagon {clase_estado}">
+        <div style="font-size: 1.5rem; color: #0099FF; font-weight: bold;">BALTHASAR-2</div>
+        <div style="color: #aaa; font-size: 0.9rem;">MOTHER MODULE</div>
+        <div class="magi-status {'status-approved' if estado_bal == '承 認' else 'status-denied'}">
+            {estado_bal}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_cas:
+    estado_cas = st.session_state.magi_states["CASPER"]
+    clase_estado = "approved" if estado_cas == "承 認" else "denied"
+    st.markdown(f"""
+    <div class="magi-hexagon {clase_estado}">
+        <div style="font-size: 1.5rem; color: #0099FF; font-weight: bold;">CASPER-3</div>
+        <div style="color: #aaa; font-size: 0.9rem;">WOMAN MODULE</div>
+        <div class="magi-status {'status-approved' if estado_cas == '承 認' else 'status-denied'}">
+            {estado_cas}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Panel de decisión
+decision = get_majority_decision()
+color_decision = "#00FFC8" if decision == "APPROVED" else "#FF0000"
+st.markdown(f"""
+<div class="decision-panel">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <span style="font-size: 1.1rem; color: #aaa;">DELIBERATION STATUS:</span>
+        <span style="font-size: 1.8rem; font-weight: 900; color: {color_decision}; margin-left: 15px;">
+            {decision}
+        </span>
+    </div>
+    <div style="text-align: center; color: #888; font-size: 0.9rem;">
+        MAJORITY RULE: 2/3 REQUIRED FOR APPROVAL
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- BARRAS DE TOXICIDAD MENTAL ---
+st.markdown("### <span class='warning-text'>⚠</span> MENTAL TOXICITY METRICS", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div class="toxicity-container">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: #00FFC8;">SYSTEM LOAD</span>
+        <span style="color: #ff6600; font-family: 'Orbitron';">{st.session_state.toxicity_level}%</span>
+    </div>
+    <div class="toxicity-bar" style="width: {st.session_state.toxicity_level}%;"></div>
+    
+    <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 20px;">
+        {"".join([f'<div style="height: {random.randint(10, 40)}px; background: linear-gradient(to top, #00FFC8, #0099FF, #7D00FF); opacity: {random.uniform(0.3, 0.9)}; border-radius: 2px;"></div>' 
+          for _ in range(30)])}
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
+
+# --- SIDEBAR CON INFORMACIÓN DEL SISTEMA ---
 with st.sidebar:
-    st.markdown("### 🔒 ACCESO NERV")
-    # Intentar leer secretos primero, si no, pedir input manual
+    st.markdown("### <span class='kanji-text'>情報</span> SYSTEM INFO", unsafe_allow_html=True)
+    
+    # API Key
     if "GROQ_API_KEY" in st.secrets:
         api_key = st.secrets["GROQ_API_KEY"]
-        st.success("PROTOCOL: SECURE LINK ESTABLISHED")
+        st.success("🔗 SECURE LINK ESTABLISHED")
     else:
-        api_key = st.text_input("CLAVE API (Groq)", type="password")
+        api_key = st.text_input("CLAVE API (Groq)", type="password", key="api_key_input")
+    
+    if not api_key:
+        st.warning("⚠️ API KEY REQUIRED")
     
     st.markdown("---")
-    st.markdown("### 📜 REGISTROS ANTERIORES")
-    if not st.session_state.history:
-        st.write("No hay datos en memoria.")
-    for i, entry in enumerate(reversed(st.session_state.history[-5:])):  # Mostrar solo últimos 5
-        with st.expander(f"Log #{len(st.session_state.history)-i}: {entry['dilema'][:20]}..."):
-            st.write(entry['resolucion'][:200] + "..." if len(entry['resolucion']) > 200 else entry['resolucion'])
+    
+    # Estado del sistema
+    st.markdown("#### SYSTEM STATUS")
+    col_stat1, col_stat2 = st.columns(2)
+    with col_stat1:
+        st.metric("SYNC RATE", "99.9%", "0.1%")
+    with col_stat2:
+        st.metric("ERRORS", "0", "0")
+    
+    st.markdown("---")
+    
+    # Historial
+    st.markdown("#### <span class='kanji-text'>記録</span> RECENT LOGS")
+    if st.session_state.history:
+        for i, entry in enumerate(reversed(st.session_state.history[-3:])):
+            with st.expander(f"[{entry['timestamp']}] {entry['dilema'][:30]}..."):
+                st.write(entry['resolucion'][:150] + "...")
+    else:
+        st.write("No logs available")
+    
+    # Botón para actualizar toxicidad
+    if st.button("UPDATE METRICS", use_container_width=True):
+        update_toxicity()
+        st.rerun()
 
-# Input del Usuario
-dilema = st.chat_input("INGRESE DATOS TÁCTICOS...")
+# --- INPUT PRINCIPAL ---
+st.markdown("### <span class='kanji-text'>質問</span> TACTICAL INPUT QUERY")
+st.markdown('<div class="blinking-cursor"></div>', unsafe_allow_html=True)
+
+dilema = st.chat_input("ENTER TACTICAL PARAMETERS...")
 
 if dilema and api_key:
-    # Reproducir sonido
-    play_magi_sound()
+    # Actualizar estados aleatoriamente para simular deliberación
+    for magi in st.session_state.magi_states:
+        st.session_state.magi_states[magi] = random.choice(["承 認", "否 定"])
     
-    client = Groq(api_key=api_key)
+    update_toxicity()
     
-    st.markdown(f"""
-    <div style="border-left: 3px solid #ff6600; padding-left: 10px; margin-bottom: 20px;">
-        <small>COMANDO USUARIO:</small><br>
-        <span style="font-size: 1.2em;">>> {dilema}</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    def consultar_magi(prompt_system, temp):
-        completion = client.chat.completions.create(
-            messages=[{"role": "system", "content": prompt_system}, {"role": "user", "content": dilema}],
-            model="llama-3.3-70b-versatile",
-            temperature=temp,
-            max_tokens=200  # Limitar para evitar textos muy largos
-        )
-        return completion.choices[0].message.content
-
-    # Procesamiento con Spinner Visual
-    with st.status("ESTABLECIENDO ENLACE NEURAL...", expanded=True) as status:
-        st.write("Conectando con MELCHIOR-1...")
-        m_resp = consultar_magi("Eres MELCHIOR. Científico, lógico, frío. Breve (máximo 100 palabras).", 0.1)
-        st.write("Conectando con BALTHASAR-2...")
-        b_resp = consultar_magi("Eres BALTHASAR. Madre, protectora, ética. Breve (máximo 100 palabras).", 0.5)
-        st.write("Conectando con CASPER-3...")
-        c_resp = consultar_magi("Eres CASPER. Mujer, intuitiva, egoísta. Breve (máximo 100 palabras).", 0.9)
-        final_resp = consultar_magi(f"Resume resolución final de máximo 150 palabras basada en: M:{m_resp[:100]}, B:{b_resp[:100]}, C:{c_resp[:100]}", 0.2)
-        status.update(label="SISTEMA SINCRONIZADO", state="complete", expanded=False)
-
-    # Mostrar Resultados en Grid
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown('<div class="magi-card"><div class="node-title">MELCHIOR-1</div><small>CIENCIA</small></div>', unsafe_allow_html=True)
-        st.write_stream(stream_data(m_resp))
-    with col2:
-        st.markdown('<div class="magi-card"><div class="node-title">BALTHASAR-2</div><small>MADRE</small></div>', unsafe_allow_html=True)
-        st.write_stream(stream_data(b_resp))
-    with col3:
-        st.markdown('<div class="magi-card"><div class="node-title">CASPER-3</div><small>MUJER</small></div>', unsafe_allow_html=True)
-        st.write_stream(stream_data(c_resp))
-
-    st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
-    
-    # Resolución y PDF
-    st.markdown("""
-    <div style="background-color: rgba(255, 102, 0, 0.1); padding: 15px; border-left: 5px solid #ff6600; margin-bottom: 20px;">
-        <h3>🛑 RESOLUCIÓN FINAL</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    st.write_stream(stream_data(final_resp))
-    
-    # Agregar al historial
-    add_to_history(dilema, final_resp)
-    
-    # Generar PDF en memoria - USANDO LA VERSIÓN CORREGIDA
     try:
-        with st.spinner("Generando informe clasificado..."):
-            pdf_bytes = crear_pdf_corregido(dilema, m_resp, b_resp, c_resp, final_resp)
+        client = Groq(api_key=api_key)
         
-        # Mostrar información del PDF
-        st.info(f"📊 **Reporte generado:** {len(pdf_bytes):,} bytes | {datetime.datetime.now().strftime('%H:%M:%S')}")
+        # Mostrar input con estilo
+        st.markdown(f"""
+        <div class="magi-card">
+            <div class="node-title">USER QUERY</div>
+            <div style="color: #00FFC8; font-size: 1.1rem; border-left: 3px solid #ff6600; padding-left: 15px;">
+                &gt;&gt; {dilema}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Botón de descarga
-        col_download, col_preview = st.columns([2, 1])
-        with col_download:
-            st.download_button(
-                label="📄 DESCARGAR INFORME OFICIAL (PDF VISIBLE)",
-                data=pdf_bytes,
-                file_name=f"MAGI_REPORT_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                mime="application/pdf",
-                help="El PDF ahora tendrá texto negro visible sobre fondo blanco"
+        def consultar_magi(prompt_system, temp):
+            completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": prompt_system},
+                    {"role": "user", "content": dilema}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=temp,
+                max_tokens=200
             )
+            return completion.choices[0].message.content
         
-        with col_preview:
-            # Vista previa del contenido
-            with st.expander("📋 Vista previa del reporte"):
-                st.text(f"""
-                MAGI SYSTEM REPORT
-                ==================
-                Fecha: {datetime.datetime.now()}
-                
-                INPUT:
-                {dilema[:100]}...
-                
-                MELCHIOR-1:
-                {m_resp[:150]}...
-                
-                BALTHASAR-2:
-                {b_resp[:150]}...
-                
-                CASPER-3:
-                {c_resp[:150]}...
-                
-                RESOLUCIÓN FINAL:
-                {final_resp[:200]}...
-                """)
+        # Procesamiento con animación
+        with st.status("INITIATING NEURAL LINK...", expanded=True) as status:
+            time.sleep(0.5)
+            st.write("ACCESSING MELCHIOR-1...")
+            m_resp = consultar_magi("Eres MELCHIOR. Científico, lógico, frío. Analiza desde perspectiva científica. Máximo 100 palabras.", 0.1)
+            time.sleep(0.3)
+            
+            st.write("ACCESSING BALTHASAR-2...")
+            b_resp = consultar_magi("Eres BALTHASAR. Madre, protectora, ética. Analiza desde perspectiva moral y protectora. Máximo 100 palabras.", 0.5)
+            time.sleep(0.3)
+            
+            st.write("ACCESSING CASPER-3...")
+            c_resp = consultar_magi("Eres CASPER. Mujer, intuitiva, egoísta. Analiza desde perspectiva intuitiva y práctica. Máximo 100 palabras.", 0.9)
+            time.sleep(0.3)
+            
+            st.write("SYNTHESIZING FINAL RESOLUTION...")
+            final_resp = consultar_magi(f"Como sistema MAGI, proporciona una resolución final concisa (máximo 150 palabras) basada en: Ciencia:{m_resp[:100]}, Ética:{b_resp[:100]}, Intuición:{c_resp[:100]}", 0.3)
+            
+            status.update(label="DELIBERATION COMPLETE", state="complete", expanded=False)
         
-        # Opción adicional: Archivo de texto como backup
-        texto_reporte = f"""MAGI SYSTEM - REPORTE DE CONSULTA
-Fecha: {datetime.datetime.now()}
-Código: 473
-
-INPUT DEL USUARIO:
-{dilema}
-
-RESPUESTA MELCHIOR-1 (CIENCIA):
-{m_resp}
-
-RESPUESTA BALTHASAR-2 (MADRE):
-{b_resp}
-
-RESPUESTA CASPER-3 (MUJER):
-{c_resp}
-
-RESOLUCIÓN FINAL DEL SISTEMA:
-{final_resp}
-
---- FIN DEL REPORTE ---
-Sistema MAGI v1.0 | NERV Command"""
+        # Mostrar respuestas
+        st.markdown("### <span class='kanji-text'>回答</span> MODULE RESPONSES")
         
-        st.download_button(
-            label="📝 DESCARGAR COMO TEXTO (BACKUP)",
-            data=texto_reporte,
-            file_name=f"MAGI_BACKUP_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
-            mime="text/plain"
-        )
+        col_res1, col_res2, col_res3 = st.columns(3)
         
-    except Exception as pdf_error:
-        st.error(f"❌ Error crítico al generar PDF: {str(pdf_error)[:100]}")
-        st.info("""
-        **Solución rápida:**
-        1. Los textos pueden contener caracteres especiales
-        2. Intenta con una consulta más corta
-        3. Usa el botón de descarga como texto como alternativa
-        """)
+        with col_res1:
+            st.markdown('<div class="magi-card"><div class="node-title">MELCHIOR-1</div><div style="color:#888; text-align:center;">SCIENCE</div></div>', unsafe_allow_html=True)
+            st.write_stream(stream_data(m_resp))
+        
+        with col_res2:
+            st.markdown('<div class="magi-card"><div class="node-title">BALTHASAR-2</div><div style="color:#888; text-align:center;">MOTHER</div></div>', unsafe_allow_html=True)
+            st.write_stream(stream_data(b_resp))
+        
+        with col_res3:
+            st.markdown('<div class="magi-card"><div class="node-title">CASPER-3</div><div style="color:#888; text-align:center;">WOMAN</div></div>', unsafe_allow_html=True)
+            st.write_stream(stream_data(c_resp))
+        
+        st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
+        
+        # Resolución final
+        st.markdown(f"""
+        <div style="background: linear-gradient(145deg, rgba(255, 102, 0, 0.1), rgba(255, 0, 0, 0.05)); 
+                    padding: 25px; border-left: 5px solid #ff6600; margin: 30px 0;">
+            <h3 style="color: #ff6600; margin-bottom: 15px;">
+                <span class='kanji-text'>解決</span> FINAL SYSTEM RESOLUTION
+            </h3>
+            <div style="color: #fff; line-height: 1.6; font-size: 1.1rem;">
+        """, unsafe_allow_html=True)
+        
+        st.write_stream(stream_data(final_resp, 0.03))
+        
+        st.markdown("</div></div>", unsafe_allow_html=True)
+        
+        # Agregar al historial
+        add_to_history(dilema, final_resp)
+        
+        # Generar PDF
+        st.markdown("### <span class='kanji-text'>報告</span> CLASSIFIED REPORT")
+        
+        with st.spinner("GENERATING OFFICIAL DOCUMENTATION..."):
+            pdf_bytes = crear_pdf_mejorado(dilema, m_resp, b_resp, c_resp, final_resp)
+            
+            col_pdf1, col_pdf2 = st.columns([3, 1])
+            
+            with col_pdf1:
+                st.download_button(
+                    label="📄 DOWNLOAD CLASSIFIED REPORT (PDF)",
+                    data=pdf_bytes,
+                    file_name=f"MAGI_REPORT_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
+            
+            with col_pdf2:
+                # Vista previa
+                with st.expander("PREVIEW"):
+                    st.text(f"""
+                    MAGI SYSTEM - EXECUTIVE SUMMARY
+                    {'='*40}
+                    Decision: {decision}
+                    Toxicity: {st.session_state.toxicity_level}%
+                    
+                    Final Resolution:
+                    {final_resp[:200]}...
+                    """)
+        
+        # Rerun para actualizar UI
+        st.rerun()
+        
+    except Exception as e:
+        st.error(f"SYSTEM ERROR: {str(e)[:150]}")
+        st.info("Check API key and connection stability.")
 
 elif dilema and not api_key:
-    st.warning("⚠️ MAGI OFFLINE. INGRESE CLAVE DE ACCESO EN EL PANEL LATERAL.")
-    
-    # Mostrar instrucciones
-    with st.expander("ℹ️ ¿Cómo obtener una API key de Groq?"):
-        st.markdown("""
-        1. Visita [console.groq.com](https://console.groq.com)
-        2. Regístrate o inicia sesión
-        3. Ve a "API Keys" en el menú
-        4. Crea una nueva API key
-        5. Cópiala y pégala en el panel lateral de esta aplicación
-        6. ¡Listo! El sistema MAGI se activará automáticamente
-        """)
+    st.error("""
+    <div style="background: rgba(255, 0, 0, 0.1); padding: 20px; border: 2px solid #FF0000;">
+        <h3 style="color: #FF0000;">🔴 SYSTEM OFFLINE</h3>
+        <p>API KEY REQUIRED FOR NEURAL LINK ACTIVATION</p>
+        <p style="color: #aaa; font-size: 0.9rem;">Enter valid Groq API key in sidebar</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-# Footer adicional
+# Footer del sistema
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #ff6600; opacity: 0.7; font-size: 0.9rem; margin-top: 30px;">
-    <i>MAGI SYSTEM v1.0 | NERV Supercomputing Center | Protocol 473 Active</i>
+<div style="text-align: center; color: #888; font-size: 0.9rem; padding: 20px;">
+    <span style="color: #00FFC8;">MAGI SYSTEM v3.14</span> | 
+    <span style="color: #0099FF;">SUPERCOMPUTING CENTER</span> | 
+    <span style="color: #ff6600;">PROTOCOL: ENIGMA-473</span><br>
+    <span style="font-size: 0.8rem; color: #666;">
+    FILE: MAGI_SYS | ACCESS: RESTRICTED | SECURITY: MAXIMUM
+    </span>
 </div>
 """, unsafe_allow_html=True)
