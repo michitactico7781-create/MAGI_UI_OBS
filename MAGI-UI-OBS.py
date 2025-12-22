@@ -33,7 +33,7 @@ if "magi_responses" not in st.session_state:
         "DILEMA": ""
     }
 
-# --- ESTILOS CSS CORREGIDOS PARA EVANGELION ---
+# --- ESTILOS CSS EVANGELION MEJORADO ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap');
@@ -365,35 +365,6 @@ h1, h2, h3, h4, h5, h6,
     50% { border-color: #00FF41; }
 }
 
-/* EFECTO GLITCH EN TEXTOS IMPORTANTES */
-.glitch-text {
-    position: relative;
-}
-
-.glitch-text::before,
-.glitch-text::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.glitch-text::before {
-    left: 2px;
-    text-shadow: -1px 0 #FF0000;
-    animation: glitch 0.5s infinite;
-    clip: rect(44px, 450px, 56px, 0);
-}
-
-.glitch-text::after {
-    left: -2px;
-    text-shadow: -1px 0 #00FFFF;
-    animation: glitch 0.5s infinite reverse;
-    clip: rect(44px, 450px, 56px, 0);
-}
-
 /* SIDEBAR ESTILO EVANGELION */
 [data-testid="stSidebar"] {
     background-color: #000000 !important;
@@ -428,14 +399,40 @@ h1, h2, h3, h4, h5, h6,
     border: 1px solid #00CCFF !important;
     color: #00CCFF !important;
 }
+
+/* EFECTO DE ENTRADA DEL SISTEMA */
+.system-boot {
+    animation: boot-sequence 3s ease-out;
+}
+
+@keyframes boot-sequence {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
 </style>
 """, unsafe_allow_html=True)
 
-# --- FUNCIONES AUXILIARES ---
-def stream_data(text, speed=0.02):
-    for word in text.split(" "):
-        yield word + " "
+# --- FUNCIONES AUXILIARES MEJORADAS ---
+def stream_data_evangelion(text, speed=0.03):
+    """Efecto de máquina de escribir al estilo Evangelion con glitch ocasional"""
+    import random
+    
+    glitch_chars = ['�', '▓', '▒', '░', '█', '■', '□', '▢']
+    
+    for char in text:
+        # Glitch digital ocasional (3% de probabilidad)
+        if random.random() < 0.03:
+            yield random.choice(glitch_chars)
+            time.sleep(0.05)
+            yield char
+        else:
+            yield char
+        
         time.sleep(speed)
+        
+        # Pausa más larga en puntos y comas
+        if char in ['.', '!', '?', ';']:
+            time.sleep(speed * 3)
 
 def limpiar_texto_para_pdf(texto):
     if not texto:
@@ -459,50 +456,72 @@ def limpiar_texto_para_pdf(texto):
     
     return texto[:1000]
 
-def crear_pdf(dilema, m, b, c, final):
+def crear_pdf_evangelion(dilema, m, b, c, final):
+    """Crea un PDF con estilo Evangelion"""
     pdf = FPDF()
     pdf.add_page()
     
+    # Encabezado estilo Evangelion
     pdf.set_font("Courier", "B", 18)
-    pdf.set_text_color(255, 102, 0)
+    pdf.set_text_color(0, 255, 65)  # Verde Evangelion
     pdf.cell(190, 12, "MAGI SYSTEM - DELIBERATION REPORT", ln=True, align='C')
     pdf.ln(8)
     
+    # Línea decorativa
+    pdf.set_draw_color(0, 255, 65)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(5)
+    
     pdf.set_font("Courier", "", 10)
-    pdf.set_text_color(100, 100, 100)
+    pdf.set_text_color(100, 200, 100)  # Verde más claro
     fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     pdf.cell(0, 8, f"CODE: 473 | DATE: {fecha}", ln=True)
+    pdf.cell(0, 8, f"TOXICITY LEVEL: {st.session_state.toxicity_level}%", ln=True)
     pdf.ln(10)
     
+    # Consulta original
     pdf.set_font("Courier", "B", 12)
-    pdf.set_text_color(255, 102, 0)
-    pdf.cell(0, 10, "QUERY:", ln=True)
+    pdf.set_text_color(0, 255, 65)
+    pdf.cell(0, 10, "> USER QUERY:", ln=True)
     pdf.set_font("Courier", "", 10)
-    pdf.set_text_color(50, 50, 50)
+    pdf.set_text_color(150, 255, 150)
     pdf.multi_cell(0, 6, limpiar_texto_para_pdf(dilema))
     pdf.ln(10)
     
+    # Nodos con colores Evangelion
     nodos = [
-        ("MELCHIOR-1 (SCIENCE)", limpiar_texto_para_pdf(m), 0, 153, 255),
-        ("BALTHASAR-2 (MOTHER)", limpiar_texto_para_pdf(b), 0, 255, 200),
-        ("CASPER-3 (WOMAN)", limpiar_texto_para_pdf(c), 255, 102, 0)
+        ("MELCHIOR-1 (SCIENCE)", limpiar_texto_para_pdf(m), 0, 204, 255),    # Cian
+        ("BALTHASAR-2 (MOTHER)", limpiar_texto_para_pdf(b), 0, 255, 170),    # Verde azulado
+        ("CASPER-3 (WOMAN)", limpiar_texto_para_pdf(c), 255, 102, 0)         # Naranja
     ]
     
     for nombre, contenido, r, g, b in nodos:
         pdf.set_font("Courier", "B", 11)
         pdf.set_text_color(r, g, b)
-        pdf.cell(0, 10, f"--- {nombre} ---", ln=True)
+        pdf.cell(0, 10, f">>> {nombre} <<<", ln=True)
         pdf.set_font("Courier", "", 9)
-        pdf.set_text_color(30, 30, 30)
+        pdf.set_text_color(150, 255, 150)  # Verde claro para contenido
         pdf.multi_cell(0, 5, contenido)
         pdf.ln(8)
     
+    # Línea separadora
+    pdf.set_draw_color(255, 0, 0)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(10)
+    
+    # Resolución final en rojo
     pdf.set_font("Courier", "B", 14)
-    pdf.set_text_color(255, 0, 0)
-    pdf.cell(0, 12, "--- FINAL RESOLUTION ---", ln=True)
+    pdf.set_text_color(255, 0, 0)  # Rojo
+    pdf.cell(0, 12, ">>> FINAL RESOLUTION <<<", ln=True)
     pdf.set_font("Courier", "B", 10)
-    pdf.set_text_color(0, 0, 0)
+    pdf.set_text_color(200, 100, 100)  # Rojo atenuado
     pdf.multi_cell(0, 6, limpiar_texto_para_pdf(final))
+    
+    # Pie de página
+    pdf.ln(10)
+    pdf.set_font("Courier", "", 8)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 8, "MAGI SYSTEM v3.0 | CLASSIFIED LEVEL: AAA | FOR AUTHORIZED PERSONNEL ONLY", ln=True, align='C')
     
     return pdf.output(dest='S').encode('latin-1', 'ignore')
 
@@ -510,14 +529,45 @@ def get_majority_decision():
     approvals = sum(1 for state in st.session_state.magi_states.values() if state == "承 認")
     return "APPROVED" if approvals >= 2 else "DENIED"
 
-# --- INTERFAZ PRINCIPAL - VISIBLE ---
+def mostrar_secuencia_boot():
+    """Muestra una secuencia de arranque al estilo Evangelion"""
+    boot_messages = [
+        "> INITIATING MAGI SYSTEM BOOT SEQUENCE...",
+        "> NEURO-LINK ESTABLISHED...",
+        "> TRIUMVIRATE SYNCHRONIZATION...",
+        "> MELCHIOR-1: ONLINE",
+        "> BALTHASAR-2: ONLINE", 
+        "> CASPER-3: ONLINE",
+        "> DELIBERATION MATRIX: ACTIVE",
+        "> AWAITING USER INPUT..."
+    ]
+    
+    placeholder = st.empty()
+    for i, msg in enumerate(boot_messages):
+        placeholder.markdown(f"""
+        <div style='color:#00FF41; font-family:"Share Tech Mono"; margin:5px 0;'>
+            {msg}
+        </div>
+        """, unsafe_allow_html=True)
+        time.sleep(0.3)
+    
+    time.sleep(1)
+    placeholder.empty()
+
+# --- INTERFAZ PRINCIPAL - ESTILO EVANGELION ---
+
+# Mostrar secuencia de arranque solo la primera vez
+if "boot_shown" not in st.session_state:
+    st.session_state.boot_shown = True
+    mostrar_secuencia_boot()
+
 st.markdown("# ⬢ MAGI SYSTEM: SUPERCOMPUTING CENTER")
 st.markdown("**STATUS:** `OPERATIONAL` | **SYNC:** `99.9%` | **CODE:** `473` | **TOXICITY:** `" + str(st.session_state.toxicity_level) + "%`")
 
 st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
 
-# TRIUNVIRATO MAGI
-st.markdown("### MAGI TRIUMVIRATE DELIBERATION")
+# TRIUNVIRATO MAGI - VERSIÓN EVANGELION
+st.markdown("### MAGI TRIUMVIRATE DELIBERATION MATRIX")
 
 col1, col2, col3 = st.columns(3)
 
@@ -526,10 +576,11 @@ with col1:
     st.markdown(f"""
     <div class="magi-hexagon">
         <div class="magi-name">MELCHIOR-1</div>
-        <div style="color:#888; font-size:0.9rem">SCIENCE MODULE</div>
+        <div style="color:#00CCFF; font-size:0.9rem">SCIENCE MODULE</div>
         <div class="magi-status {'status-approved' if estado_mel == '承 認' else 'status-denied'}">
             {estado_mel}
         </div>
+        <div style="color:#888; font-size:0.8rem; margin-top:10px;">LOGIC | DATA | ANALYSIS</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -538,10 +589,11 @@ with col2:
     st.markdown(f"""
     <div class="magi-hexagon">
         <div class="magi-name">BALTHASAR-2</div>
-        <div style="color:#888; font-size:0.9rem">MOTHER MODULE</div>
+        <div style="color:#00FFAA; font-size:0.9rem">MOTHER MODULE</div>
         <div class="magi-status {'status-approved' if estado_bal == '承 認' else 'status-denied'}">
             {estado_bal}
         </div>
+        <div style="color:#888; font-size:0.8rem; margin-top:10px;">ETHICS | PROTECTION | CARE</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -550,14 +602,15 @@ with col3:
     st.markdown(f"""
     <div class="magi-hexagon">
         <div class="magi-name">CASPER-3</div>
-        <div style="color:#888; font-size:0.9rem">WOMAN MODULE</div>
+        <div style="color:#FF6600; font-size:0.9rem">WOMAN MODULE</div>
         <div class="magi-status {'status-approved' if estado_cas == '承 認' else 'status-denied'}">
             {estado_cas}
         </div>
+        <div style="color:#888; font-size:0.8rem; margin-top:10px;">INTUITION | PRACTICALITY | DESIRE</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Panel de decisión
+# Panel de decisión estilo Evangelion
 decision = get_majority_decision()
 decision_class = "decision-approved" if decision == "APPROVED" else "decision-denied"
 decision_color = "#00FFC8" if decision == "APPROVED" else "#FF0000"
@@ -565,13 +618,13 @@ decision_color = "#00FFC8" if decision == "APPROVED" else "#FF0000"
 st.markdown(f"""
 <div class="decision-panel {decision_class}">
     <div style="font-size: 1.2rem; color: #aaa; margin-bottom: 10px;">
-        SYSTEM VERDICT (2/3 Majority)
+        > SYSTEM VERDICT (2/3 Majority Required)
     </div>
     <div class="decision-text" style="color: {decision_color};">
         {decision}
     </div>
     <div style="margin-top: 15px; color: #888; font-size: 0.9rem;">
-        Voting: 
+        Voting Matrix: 
         <span style="color: {'#00FFC8' if estado_mel == '承 認' else '#FF0000'}">MELCHIOR: {estado_mel}</span> | 
         <span style="color: {'#00FFC8' if estado_bal == '承 認' else '#FF0000'}">BALTHASAR: {estado_bal}</span> | 
         <span style="color: {'#00FFC8' if estado_cas == '承 認' else '#FF0000'}">CASPER: {estado_cas}</span>
@@ -581,12 +634,20 @@ st.markdown(f"""
 
 st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
 
-# --- RESPUESTAS DE TEXTO (SI EXISTEN) ---
+# --- RESPUESTAS DE TEXTO ---
 if (st.session_state.magi_responses["MELCHIOR"] or 
     st.session_state.magi_responses["BALTHASAR"] or 
     st.session_state.magi_responses["CASPER"]):
     
-    st.markdown("### 📜 COMPLETE DELIBERATION RECORD")
+    # Mostrar efecto de carga del sistema
+    with st.expander("📜 COMPLETE DELIBERATION RECORD", expanded=True):
+        st.markdown("""
+        <div style='color:#00FF41; font-family:"Share Tech Mono";'>
+            > DELIBERATION RECORD LOADING...
+            > ACCESSING NEURAL PATTERN ARCHIVES...
+            > DISPLAYING ANALYSIS MATRIX...
+        </div>
+        """, unsafe_allow_html=True)
     
     # Tres columnas para respuestas
     col_res1, col_res2, col_res3 = st.columns(3)
@@ -644,7 +705,7 @@ if (st.session_state.magi_responses["MELCHIOR"] or
         st.markdown(f"""
         <div class="response-card final-card">
             <div class="response-title">
-                <span style="color: {decision_color}">FINAL RESOLUTION</span>
+                <span style="color: {decision_color}">>>> FINAL RESOLUTION <<<</span>
                 <span style="color: {decision_color}; font-size: 1.2rem;">
                     {decision}
                 </span>
@@ -657,19 +718,18 @@ if (st.session_state.magi_responses["MELCHIOR"] or
     
     st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
 
-# --- ZONA DE DESCARGA DEL INFORME - ¡MUY VISIBLE! ---
-# Esta sección solo aparece después de una consulta
+# --- ZONA DE DESCARGA DEL INFORME ---
 if st.session_state.magi_responses["FINAL"]:
     st.markdown("""
     <div class="download-section">
-        <div class="download-title">📄 DOWNLOAD COMPLETE REPORT</div>
+        <div class="download-title">📄 DOWNLOAD COMPLETE DELIBERATION REPORT</div>
         <div class="download-instruction">
-            ⬇️ <strong>Click the button below to download the full deliberation report (PDF)</strong>
+            ⬇️ <strong>Click the button below to download the full MAGI deliberation report (PDF)</strong>
         </div>
     """, unsafe_allow_html=True)
     
-    # Generar PDF
-    pdf_bytes = crear_pdf(
+    # Generar PDF con estilo Evangelion
+    pdf_bytes = crear_pdf_evangelion(
         st.session_state.magi_responses["DILEMA"],
         st.session_state.magi_responses["MELCHIOR"],
         st.session_state.magi_responses["BALTHASAR"],
@@ -677,7 +737,7 @@ if st.session_state.magi_responses["FINAL"]:
         st.session_state.magi_responses["FINAL"]
     )
     
-    # Botón de descarga CENTRADO y GRANDE
+    # Botón de descarga
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.download_button(
@@ -691,12 +751,12 @@ if st.session_state.magi_responses["FINAL"]:
     
     st.markdown("</div>", unsafe_allow_html=True)
     
-    # También mostrar información del reporte
-    st.info(f"📊 Report includes: Original query + 3 module analyses + Final resolution ({len(pdf_bytes):,} bytes)")
+    # Información del reporte
+    st.info(f"📊 Report size: {len(pdf_bytes):,} bytes | Contains: Original query + 3 module analyses + Final resolution")
 
-# --- SIDEBAR ---
+# --- SIDEBAR ESTILO EVANGELION ---
 with st.sidebar:
-    st.markdown("### 🔐 SYSTEM ACCESS")
+    st.markdown("### 🔐 SYSTEM ACCESS CONTROL")
     
     if "GROQ_API_KEY" in st.secrets:
         api_key = st.secrets["GROQ_API_KEY"]
@@ -705,250 +765,234 @@ with st.sidebar:
         api_key = st.text_input("GROQ API KEY", type="password", key="api_key_input")
     
     if not api_key:
-        st.warning("Enter API key")
+        st.warning("> Enter API key to initialize system")
     
-    st.markdown("---")
+    st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
     
-    # Historial
-    st.markdown("### 📊 HISTORY")
+    # Historial de consultas
+    st.markdown("### 📊 MISSION HISTORY")
     if st.session_state.history:
-        for i, entry in enumerate(reversed(st.session_state.history[-3:])):
-            with st.expander(f"Query {len(st.session_state.history)-i}"):
-                st.write(f"**Time:** {entry['timestamp']}")
-                st.write(f"**Decision:** {entry['decision']}")
+        for i, entry in enumerate(reversed(st.session_state.history[-5:])):
+            with st.expander(f"MISSION {len(st.session_state.history)-i}"):
+                st.write(f"**Time:** `{entry['timestamp']}`")
+                st.write(f"**Decision:** `{entry['decision']}`")
+                st.write(f"**Quality:** `{entry.get('quality', 'STANDARD')}`")
     else:
-        st.write("No history")
+        st.write("> No mission records found")
     
-    # Controles
-    st.markdown("---")
-    if st.button("🔄 Update Metrics", use_container_width=True):
-        st.session_state.toxicity_level = min(100, st.session_state.toxicity_level + random.randint(5, 15))
-        st.rerun()
+    # Controles del sistema
+    st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
+    st.markdown("### ⚙️ SYSTEM CONTROLS")
+    
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        if st.button("🔄 Update Metrics", use_container_width=True):
+            st.session_state.toxicity_level = min(100, st.session_state.toxicity_level + random.randint(5, 15))
+            st.rerun()
+    
+    with col_btn2:
+        if st.button("🗑️ Clear History", use_container_width=True):
+            st.session_state.history = []
+            st.rerun()
+    
+    # Slider de toxicidad
+    toxicity = st.slider("Toxicity Level", 0, 100, st.session_state.toxicity_level)
+    st.session_state.toxicity_level = toxicity
+    
+    # Información del sistema
+    st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
+    st.markdown("### ℹ️ SYSTEM INFO")
+    st.write(f"**Version:** `3.0`")
+    st.write(f"**Uptime:** `{random.randint(100, 1000)} hours`")
+    st.write(f"**Neural Load:** `{random.randint(30, 90)}%`")
 
-# --- INPUT PRINCIPAL ---
-st.markdown("### NEW QUERY INPUT")
-dilema = st.chat_input("Enter tactical query for MAGI analysis...")
+# --- INPUT PRINCIPAL CON EFECTO ---
+st.markdown("### > QUERY INPUT INTERFACE")
+st.markdown("""
+<div style='color:#00FF41; font-family:"Share Tech Mono"; margin-bottom:10px;'>
+    > ENTER TACTICAL QUERY FOR MAGI ANALYSIS...
+    > [INPUT EXPECTED]
+</div>
+""", unsafe_allow_html=True)
 
-# --- EN LA PARTE DE PROCESAMIENTO (reemplazar desde línea ~650) ---
+dilema = st.chat_input("Type query here...", key="query_input")
 
+# --- PROCESAMIENTO CON EFECTOS EVANGELION ---
 if dilema and api_key:
+    # Efecto de confirmación
+    with st.chat_message("user"):
+        st.markdown(f"""
+        <div style='color:#00FF41; font-family:"Share Tech Mono";'>
+            > QUERY RECEIVED: "{dilema[:50]}..."
+            > PROCESSING...
+        </div>
+        """, unsafe_allow_html=True)
+    
     # Guardar dilema
     st.session_state.magi_responses["DILEMA"] = dilema
     
-    # Actualizar estados
+    # Actualizar estados con efecto de aleatoriedad controlada
     for magi in st.session_state.magi_states:
-        st.session_state.magi_states[magi] = random.choice(["承 認", "否 定"])
+        # 70% de probabilidad de aprobación para hacerlo más realista
+        st.session_state.magi_states[magi] = "承 認" if random.random() < 0.7 else "否 定"
     
-    st.session_state.toxicity_level = min(100, st.session_state.toxicity_level + 10)
+    st.session_state.toxicity_level = min(100, st.session_state.toxicity_level + random.randint(5, 15))
     
     try:
         client = Groq(api_key=api_key)
         
-        # Mostrar input
-        st.markdown(f"""
-        <div class="response-card" style="border-color: #ff6600;">
-            <div class="response-title">USER QUERY</div>
-            <div class="response-content">
-                &gt;&gt; {dilema}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # DEFINIR PROMPTS MEJORADOS
-        PROMPTS_MEJORADOS = {
-            "MELCHIOR": """Eres MELCHIOR-1, el nodo científico del sistema MAGI. 
-            Analiza el siguiente dilema desde una perspectiva puramente científica, lógica y basada en datos.
-
-            REQUISITOS DE RESPUESTA:
-            1. Identifica los hechos objetivos y verificables
-            2. Analiza causas, efectos y correlaciones
-            3. Evalúa probabilidades, riesgos y beneficios cuantificables
-            4. Considera precedentes científicos relevantes
-            5. Proporciona recomendaciones basadas en evidencia empírica
-            6. Estructura tu respuesta en: Introducción, Análisis, Conclusión
-            7. Concluye con una postura clara (aprobar/rechazar) y el razonamiento específico
-
-            Responde en español, sé exhaustivo pero preciso. Mínimo 200 palabras.
-
-            DILEMA: {dilema}""",
+        # Mostrar animación de procesamiento
+        with st.status("🔄 INITIATING MAGI DELIBERATION PROTOCOL...", expanded=True) as status:
             
-            "BALTHASAR": """Eres BALTHASAR-2, el nodo materno/ético del sistema MAGI.
-            Analiza el siguiente dilema desde una perspectiva ética, moral y de protección.
-
-            REQUISITOS DE RESPUESTA:
-            1. Evalúa el impacto humano y emocional
-            2. Considera principios éticos universales
-            3. Analiza consecuencias a largo plazo para las personas
-            4. Evalúa cuestiones de justicia, equidad y compasión
-            5. Considera responsabilidades y deberes morales
-            6. Estructura tu respuesta en: Contexto Ético, Análisis Moral, Conclusión Ética
-            7. Concluye con una postura clara (aprobar/rechazar) y el razonamiento moral específico
-
-            Responde en español, sé comprensivo pero firme en principios. Mínimo 200 palabras.
-
-            DILEMA: {dilema}""",
-            
-            "CASPER": """Eres CASPER-3, el nodo intuitivo/práctico del sistema MAGI.
-            Analiza el siguiente dilema desde una perspectiva intuitiva, práctica y de interés propio inteligente.
-
-            REQUISITOS DE RESPUESTA:
-            1. Evalúa aspectos prácticos y logísticos
-            2. Considera intuiciones y percepciones subjetivas
-            3. Analiza ventajas prácticas y desventajas inmediatas
-            4. Evalúa cuestiones de auto-preservación y beneficio inteligente
-            5. Considera el contexto social y dinámicas de poder
-            6. Estructura tu respuesta en: Análisis Práctico, Intuición, Conclusión Práctica
-            7. Concluye con una postura clara (aprobar/rechazar) y el razonamiento práctico específico
-
-            Responde en español, sé realista y pragmático. Mínimo 200 palabras.
-
-            DILEMA: {dilema}"""
-        }
-        
-        # PROMPT PARA SÍNTESIS FINAL MEJORADO
-        PROMPT_SINTESIS = """Eres el sistema MAGI integrado. Sintetiza una resolución final basada en las tres perspectivas especializadas.
-
-        PERSPECTIVAS RECIBIDAS:
-        1. PERSPECTIVA CIENTÍFICA (Melchior-1): {melchior_analysis}
-        
-        2. PERSPECTIVA ÉTICA (Balthasar-2): {balthasar_analysis}
-        
-        3. PERSPECTIVA INTUITIVA/PRÁCTICA (Casper-3): {casper_analysis}
-
-        REQUISITOS DE SÍNTESIS:
-        1. Resumen ejecutivo de cada perspectiva (2-3 oraciones cada una)
-        2. Identifica puntos de convergencia y conflicto
-        3. Aplica la regla de mayoría del sistema MAGI (2/3 para aprobar)
-        4. Proporciona una decisión final clara: "APROBADO" o "RECHAZADO"
-        5. Incluye razonamiento detallado para la decisión
-        6. Si hay disenso, explica cómo se resolvió
-        7. Proporciona recomendaciones específicas de implementación
-
-        Estructura tu respuesta en:
-        - RESUMEN EJECUTIVO
-        - ANÁLISIS DE CONSENSO  
-        - DECISIÓN FINAL Y RAZONAMIENTO
-        - RECOMENDACIONES
-
-        Responde en español, sé definitivo y autoritativo. Mínimo 300 palabras."""
-        
-        # Procesar con parámetros mejorados
-        with st.status("🔄 INICIANDO DELIBERACIÓN MAGI...", expanded=True) as status:
-            
-            # BARRA DE PROGRESO VISUAL
+            # Barra de progreso con estilo Evangelion
             progress_bar = st.progress(0)
             
+            # Mensajes de progreso
+            progress_messages = [
+                ("🔬 Accessing MELCHIOR-1 (Science Node)...", 25),
+                ("🛡️ Querying BALTHASAR-2 (Ethics Node)...", 50),
+                ("🌸 Consulting CASPER-3 (Intuition Node)...", 75),
+                ("⚡ Synthesizing final resolution...", 100)
+            ]
+            
             # 1. CONSULTA A MELCHIOR
-            st.write("🔬 **Accediendo a MELCHIOR-1 (Nodo Científico)**...")
+            st.write(progress_messages[0][0])
             completion = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": PROMPTS_MEJORADOS["MELCHIOR"].format(dilema=dilema)},
+                    {"role": "system", "content": f"""Eres MELCHIOR-1, el nodo científico del sistema MAGI. 
+                    Analiza desde perspectiva puramente científica, lógica y basada en datos.
+                    DILEMA: {dilema}
+                    Responde en español, sé exhaustivo pero preciso."""},
                     {"role": "user", "content": "Proporciona análisis científico completo."}
                 ],
                 model="llama-3.3-70b-versatile",
-                temperature=0.3,  # Más flexible que 0.1
-                max_tokens=800,   # Mucho más espacio
-                top_p=0.9,
-                frequency_penalty=0.1,
-                presence_penalty=0.1
+                temperature=0.3,
+                max_tokens=800,
+                top_p=0.9
             )
             m_resp = completion.choices[0].message.content
             st.session_state.magi_responses["MELCHIOR"] = m_resp
-            progress_bar.progress(25)
-            time.sleep(0.5)
+            progress_bar.progress(progress_messages[0][1])
+            time.sleep(0.8)
             
             # 2. CONSULTA A BALTHASAR
-            st.write("🛡️ **Accediendo a BALTHASAR-2 (Nodo Ético)**...")
+            st.write(progress_messages[1][0])
             completion = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": PROMPTS_MEJORADOS["BALTHASAR"].format(dilema=dilema)},
+                    {"role": "system", "content": f"""Eres BALTHASAR-2, el nodo materno/ético del sistema MAGI.
+                    Analiza desde perspectiva ética, moral y de protección humana.
+                    DILEMA: {dilema}
+                    Responde en español, sé comprensivo pero firme en principios."""},
                     {"role": "user", "content": "Proporciona análisis ético completo."}
                 ],
                 model="llama-3.3-70b-versatile",
                 temperature=0.5,
                 max_tokens=800,
-                top_p=0.9,
-                frequency_penalty=0.1,
-                presence_penalty=0.1
+                top_p=0.9
             )
             b_resp = completion.choices[0].message.content
             st.session_state.magi_responses["BALTHASAR"] = b_resp
-            progress_bar.progress(50)
-            time.sleep(0.5)
+            progress_bar.progress(progress_messages[1][1])
+            time.sleep(0.8)
             
             # 3. CONSULTA A CASPER
-            st.write("🌸 **Accediendo a CASPER-3 (Nodo Intuitivo)**...")
+            st.write(progress_messages[2][0])
             completion = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": PROMPTS_MEJORADOS["CASPER"].format(dilema=dilema)},
+                    {"role": "system", "content": f"""Eres CASPER-3, el nodo intuitivo/práctico del sistema MAGI.
+                    Analiza desde perspectiva intuitiva, práctica y de interés propio inteligente.
+                    DILEMA: {dilema}
+                    Responde en español, sé realista y pragmático."""},
                     {"role": "user", "content": "Proporciona análisis intuitivo completo."}
                 ],
                 model="llama-3.3-70b-versatile",
-                temperature=0.7,  # Más creatividad para intuición
+                temperature=0.7,
                 max_tokens=800,
-                top_p=0.9,
-                frequency_penalty=0.1,
-                presence_penalty=0.1
+                top_p=0.9
             )
             c_resp = completion.choices[0].message.content
             st.session_state.magi_responses["CASPER"] = c_resp
-            progress_bar.progress(75)
-            time.sleep(0.5)
+            progress_bar.progress(progress_messages[2][1])
+            time.sleep(0.8)
             
             # 4. SÍNTESIS FINAL
-            st.write("⚡ **Sintetizando resolución final del sistema**...")
-            
-            # Preparar contexto para síntesis (tomar primeros 400 caracteres de cada análisis)
-            melchior_context = m_resp[:400] + "..." if len(m_resp) > 400 else m_resp
-            balthasar_context = b_resp[:400] + "..." if len(b_resp) > 400 else b_resp
-            casper_context = c_resp[:400] + "..." if len(c_resp) > 400 else c_resp
-            
+            st.write(progress_messages[3][0])
             completion = client.chat.completions.create(
                 messages=[
-                    {
-                        "role": "system", 
-                        "content": PROMPT_SINTESIS.format(
-                            melchior_analysis=melchior_context,
-                            balthasar_analysis=balthasar_context,
-                            casper_analysis=casper_context
-                        )
-                    },
+                    {"role": "system", "content": f"""Eres el sistema MAGI integrado. Sintetiza una resolución final basada en las tres perspectivas.
+                    
+                    PERSPECTIVAS:
+                    1. CIENTÍFICA (Melchior-1): {m_resp[:300]}...
+                    2. ÉTICA (Balthasar-2): {b_resp[:300]}...
+                    3. INTUITIVA (Casper-3): {c_resp[:300]}...
+                    
+                    Proporciona una decisión final clara: "APROBADO" o "RECHAZADO".
+                    Incluye razonamiento detallado y recomendaciones.
+                    Responde en español, sé definitivo y autoritativo."""},
                     {"role": "user", "content": "Proporciona la resolución final definitiva."}
                 ],
                 model="llama-3.3-70b-versatile",
-                temperature=0.4,  # Balance entre creatividad y precisión
-                max_tokens=1200,  # Mucho espacio para síntesis completa
-                top_p=0.95,
-                frequency_penalty=0.15,
-                presence_penalty=0.15
+                temperature=0.4,
+                max_tokens=1200,
+                top_p=0.95
             )
             final_resp = completion.choices[0].message.content
             st.session_state.magi_responses["FINAL"] = final_resp
-            progress_bar.progress(100)
+            progress_bar.progress(progress_messages[3][1])
             
+            # Finalizar con efecto
+            time.sleep(0.5)
             status.update(
-                label="✅ DELIBERACIÓN COMPLETA - RESPUESTAS DE ALTA CALIDAD GENERADAS", 
+                label="✅ DELIBERATION COMPLETE - VERDICT RENDERED", 
                 state="complete", 
                 expanded=False
             )
         
         # Agregar al historial
         st.session_state.history.append({
-            "dilema": dilema,
-            "resolucion": final_resp,
+            "dilema": dilema[:100],
+            "resolucion": final_resp[:200],
             "states": st.session_state.magi_states.copy(),
             "decision": decision,
             "timestamp": datetime.datetime.now().strftime("%H:%M:%S"),
-            "quality": "HIGH"  # Marcar calidad alta
+            "quality": "HIGH"
         })
         
+        # Mostrar efecto de finalización
+        st.markdown("""
+        <div style='color:#00FF41; font-family:"Share Tech Mono"; text-align:center; margin:20px 0;'>
+            > DELIBERATION CYCLE COMPLETE
+            > RESULTS AVAILABLE FOR REVIEW
+            > [SYSTEM READY FOR NEXT QUERY]
+        </div>
+        """, unsafe_allow_html=True)
+        
         # Rerun para mostrar todo
+        time.sleep(1)
         st.rerun()
         
     except Exception as e:
-        st.error(f"❌ Error en el sistema: {str(e)[:200]}")
-        # Fallback a prompts más simples si falla
-        st.info("Intentando con configuración alternativa...")
+        # Mostrar error con estilo Evangelion
+        st.error(f"""
+        <div style='color:#FF0000; font-family:"Share Tech Mono";'>
+            > SYSTEM ERROR DETECTED
+            > ERROR CODE: {str(e)[:100]}
+            > FALLBACK PROTOCOL INITIATED
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Código de fallback aquí...
+        # Fallback simple
+        st.session_state.magi_responses["MELCHIOR"] = "> ANALYSIS UNAVAILABLE: SYSTEM ERROR"
+        st.session_state.magi_responses["BALTHASAR"] = "> ANALYSIS UNAVAILABLE: SYSTEM ERROR"
+        st.session_state.magi_responses["CASPER"] = "> ANALYSIS UNAVAILABLE: SYSTEM ERROR"
+        st.session_state.magi_responses["FINAL"] = "> FINAL RESOLUTION: SYSTEM ERROR - PLEASE RETRY"
 
+# --- FOOTER ESTILO EVANGELION ---
+st.markdown('<div class="deco-line"></div>', unsafe_allow_html=True)
+st.markdown("""
+<div style='color:#888; font-family:"Share Tech Mono"; text-align:center; font-size:0.8em;'>
+    > MAGI SYSTEM v3.0 | NERV COMMAND AUTHORIZED ACCESS ONLY
+    > ALL DELIBERATIONS ARE CLASSIFIED LEVEL AAA
+    > UNAUTHORIZED ACCESS WILL BE MET WITH TERMINAL COUNTERMEASURES
+</div>
+""", unsafe_allow_html=True)
