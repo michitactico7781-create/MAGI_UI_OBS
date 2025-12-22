@@ -33,13 +33,15 @@ if "magi_responses" not in st.session_state:
         "DILEMA": ""
     }
 
+# --- ESTILOS CSS CORREGIDOS PARA EVANGELION ---
+st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap');
 
 /* FONDO PRINCIPAL - ESTILO EVANGELION */
 .stApp {
     background-color: #000000 !important;
-    color: #00FF41 !important; /* Verde terminal matrix/evangelion */
+    color: #00FF41 !important;
     font-family: 'VT323', 'Share Tech Mono', monospace !important;
     font-size: 1.1em !important;
 }
@@ -61,6 +63,11 @@ if "magi_responses" not in st.session_state:
     animation: scan 8s linear infinite;
 }
 
+@keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
 /* EFECTO DE PARPADEO DEL CURSOR */
 @keyframes blink {
     0%, 100% { opacity: 1; }
@@ -78,17 +85,22 @@ if "magi_responses" not in st.session_state:
 }
 
 /* CONTENIDO PRINCIPAL */
-.main-content {
-    position: relative;
-    z-index: 1;
-    background: rgba(0, 0, 0, 0.85);
-    border: 1px solid #00FF41;
-    margin: 10px;
-    padding: 15px;
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewBlockContainer"],
+.main-content,
+.stAppViewContainer {
+    position: relative !important;
+    z-index: 1 !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    border: 1px solid #00FF41 !important;
+    margin: 10px !important;
+    padding: 15px !important;
 }
 
 /* TÍTULOS AL ESTILO EVANGELION */
-h1, h2, h3 {
+h1, h2, h3, h4, h5, h6,
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
+.stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
     font-family: 'Orbitron', sans-serif !important;
     color: #00FF41 !important;
     text-shadow: 0 0 5px #00FF41 !important;
@@ -102,7 +114,7 @@ h1, h2, h3 {
 .magi-hexagon {
     background: rgba(0, 20, 0, 0.8) !important;
     border: 2px solid #00FF41 !important;
-    border-radius: 0 !important; /* Sin bordes redondeados */
+    border-radius: 0 !important;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !important;
     padding: 20px !important;
     margin: 10px !important;
@@ -110,6 +122,8 @@ h1, h2, h3 {
     box-shadow: 
         inset 0 0 10px rgba(0, 255, 65, 0.3),
         0 0 15px rgba(0, 255, 65, 0.2) !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .magi-name {
@@ -125,6 +139,19 @@ h1, h2, h3 {
     font-size: 2.5em !important;
     font-family: 'MS Gothic', 'MS Mincho', monospace !important;
     margin-top: 15px !important;
+    font-weight: bold !important;
+}
+
+.status-approved {
+    color: #00FFC8 !important;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.7) !important;
+    animation: blink 2s infinite;
+}
+
+.status-denied {
+    color: #FF0000 !important;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.7) !important;
+    animation: blink 1s infinite;
 }
 
 /* PANEL DE DECISIÓN - ESTILO MILITAR */
@@ -134,6 +161,7 @@ h1, h2, h3 {
     padding: 20px !important;
     margin: 20px 0 !important;
     position: relative !important;
+    z-index: 2 !important;
 }
 
 .decision-panel::before {
@@ -144,6 +172,7 @@ h1, h2, h3 {
     transform: translateY(-50%);
     color: #00FF41;
     animation: blink 1s infinite;
+    font-size: 1.5em;
 }
 
 .decision-text {
@@ -151,6 +180,19 @@ h1, h2, h3 {
     font-weight: bold !important;
     text-align: center !important;
     letter-spacing: 3px !important;
+    color: inherit !important;
+}
+
+.decision-approved {
+    border-color: #00FFC8 !important;
+    background: rgba(0, 255, 200, 0.15) !important;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.3) !important;
+}
+
+.decision-denied {
+    border-color: #FF0000 !important;
+    background: rgba(255, 0, 0, 0.15) !important;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3) !important;
 }
 
 /* TARJETAS DE RESPUESTA - ESTILO TERMINAL */
@@ -161,12 +203,17 @@ h1, h2, h3 {
     margin: 10px 0 !important;
     padding: 15px !important;
     position: relative !important;
+    z-index: 2 !important;
+    min-height: 200px !important;
 }
 
 .response-card::before {
     content: ">> ";
     color: #00FF41;
     font-weight: bold;
+    position: absolute;
+    left: 5px;
+    top: 15px;
 }
 
 .response-title {
@@ -176,14 +223,35 @@ h1, h2, h3 {
     margin-bottom: 10px !important;
     font-size: 1.2em !important;
     font-weight: bold !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .response-content {
     color: #CCFFCC !important;
     font-family: 'Share Tech Mono', monospace !important;
-    line-height: 1.5 !important;
+    line-height: 1.6 !important;
     white-space: pre-wrap !important;
     font-size: 0.95em !important;
+}
+
+/* COLORES ESPECÍFICOS PARA CADA MAGI */
+.melchior-card {
+    border-left-color: #00CCFF !important;
+}
+
+.balthasar-card {
+    border-left-color: #00FFAA !important;
+}
+
+.casper-card {
+    border-left-color: #FF6600 !important;
+}
+
+.final-card {
+    border-left-color: #FF0000 !important;
+    background: rgba(20, 0, 0, 0.9) !important;
 }
 
 /* SECCIÓN DE DESCARGA */
@@ -192,16 +260,27 @@ h1, h2, h3 {
     border: 2px solid #00FF41 !important;
     padding: 20px !important;
     margin: 20px 0 !important;
-    border-left: 6px solid #FF0000 !important; /* Acento rojo */
+    border-left: 6px solid #FF0000 !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .download-title {
-    color: #FF0000 !important; /* Rojo para contraste */
+    color: #FF0000 !important;
     font-size: 1.5em !important;
     font-weight: bold !important;
     text-align: center !important;
     margin-bottom: 15px !important;
     text-transform: uppercase !important;
+}
+
+.download-instruction {
+    color: #00FF41 !important;
+    font-size: 1.1em !important;
+    text-align: center !important;
+    margin-bottom: 20px !important;
+    padding: 10px !important;
+    background: rgba(0, 0, 0, 0.3) !important;
 }
 
 /* BOTONES - ESTILO INTERFAZ MILITAR */
@@ -214,6 +293,8 @@ h1, h2, h3 {
     border-radius: 0 !important;
     padding: 10px 20px !important;
     transition: all 0.2s !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .stButton > button:hover {
@@ -231,6 +312,8 @@ h1, h2, h3 {
     font-family: 'Share Tech Mono', monospace !important;
     border-radius: 0 !important;
     padding: 10px !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 /* LÍNEAS DECORATIVAS */
@@ -243,29 +326,8 @@ h1, h2, h3 {
         transparent);
     margin: 20px 0;
     opacity: 0.7;
-}
-
-/* EFECTO DE TEXTO PARPADEANTE PARA ESTADO */
-.status-blink {
-    animation: blink 2s infinite;
-}
-
-/* COLORES ESPECÍFICOS PARA CADA MAGI (pero manteniendo el tema verde) */
-.melchior-card {
-    border-left-color: #00CCFF !important;
-}
-
-.balthasar-card {
-    border-left-color: #00FFAA !important;
-}
-
-.casper-card {
-    border-left-color: #FF6600 !important;
-}
-
-.final-card {
-    border-left-color: #FF0000 !important;
-    background: rgba(20, 0, 0, 0.9) !important;
+    position: relative;
+    z-index: 2;
 }
 
 /* SCROLLBAR ESTILIZADO */
@@ -302,7 +364,72 @@ h1, h2, h3 {
     from, to { border-color: transparent }
     50% { border-color: #00FF41; }
 }
+
+/* EFECTO GLITCH EN TEXTOS IMPORTANTES */
+.glitch-text {
+    position: relative;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch-text::before {
+    left: 2px;
+    text-shadow: -1px 0 #FF0000;
+    animation: glitch 0.5s infinite;
+    clip: rect(44px, 450px, 56px, 0);
+}
+
+.glitch-text::after {
+    left: -2px;
+    text-shadow: -1px 0 #00FFFF;
+    animation: glitch 0.5s infinite reverse;
+    clip: rect(44px, 450px, 56px, 0);
+}
+
+/* SIDEBAR ESTILO EVANGELION */
+[data-testid="stSidebar"] {
+    background-color: #000000 !important;
+    border-right: 2px solid #00FF41 !important;
+}
+
+[data-testid="stSidebar"] * {
+    color: #00FF41 !important;
+}
+
+/* MENSAJES DE ESTADO */
+.stSuccess {
+    background-color: rgba(0, 255, 65, 0.1) !important;
+    border: 1px solid #00FF41 !important;
+    color: #00FF41 !important;
+}
+
+.stWarning {
+    background-color: rgba(255, 204, 0, 0.1) !important;
+    border: 1px solid #FFCC00 !important;
+    color: #FFCC00 !important;
+}
+
+.stError {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+    border: 1px solid #FF0000 !important;
+    color: #FF0000 !important;
+}
+
+.stInfo {
+    background-color: rgba(0, 204, 255, 0.1) !important;
+    border: 1px solid #00CCFF !important;
+    color: #00CCFF !important;
+}
 </style>
+""", unsafe_allow_html=True)
 
 # --- FUNCIONES AUXILIARES ---
 def stream_data(text, speed=0.02):
@@ -824,3 +951,4 @@ if dilema and api_key:
         st.info("Intentando con configuración alternativa...")
         
         # Código de fallback aquí...
+
