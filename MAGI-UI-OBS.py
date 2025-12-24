@@ -33,15 +33,15 @@ if "magi_responses" not in st.session_state:
         "DILEMA": ""
     }
 
-# --- ESTILOS CSS EVANGELION MODIFICADO A NARANJA ---
+# --- ESTILOS CSS EVANGELION MEJORADO ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap');
 
-/* FONDO PRINCIPAL - ESTILO EVANGELION NARANJA */
+/* FONDO PRINCIPAL - ESTILO EVANGELION */
 .stApp {
     background-color: #000000 !important;
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
     font-family: 'VT323', 'Share Tech Mono', monospace !important;
     font-size: 1.1em !important;
 }
@@ -92,19 +92,19 @@ st.markdown("""
     position: relative !important;
     z-index: 1 !important;
     background: rgba(0, 0, 0, 0.85) !important;
-    border: 1px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
+    border: 1px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
     margin: 10px !important;
     padding: 15px !important;
 }
 
-/* TÍTULOS AL ESTILO EVANGELION NARANJA */
+/* TÍTULOS AL ESTILO EVANGELION - NARANJA */
 h1, h2, h3, h4, h5, h6,
 .stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
 .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
     font-family: 'Orbitron', sans-serif !important;
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
-    text-shadow: 0 0 5px #FF6600 !important;  /* NARANJA PRINCIPAL */
-    border-bottom: 1px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
+    text-shadow: 0 0 5px #FF6600 !important;  /* CAMBIADO A NARANJA */
+    border-bottom: 1px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
     padding-bottom: 5px !important;
     margin-bottom: 15px !important;
     letter-spacing: 1px !important;
@@ -112,22 +112,22 @@ h1, h2, h3, h4, h5, h6,
 
 /* HEXÁGONOS MAGI - ESTILO EVANGELION */
 .magi-hexagon {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border: 2px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background: rgba(0, 20, 0, 0.8) !important;
+    border: 2px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
     border-radius: 0 !important;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !important;
     padding: 20px !important;
     margin: 10px !important;
     text-align: center !important;
     box-shadow: 
-        inset 0 0 10px rgba(255, 102, 0, 0.3),  /* NARANJA PRINCIPAL */
-        0 0 15px rgba(255, 102, 0, 0.2) !important;  /* NARANJA PRINCIPAL */
+        inset 0 0 10px rgba(255, 102, 0, 0.3),  /* CAMBIADO A NARANJA */
+        0 0 15px rgba(255, 102, 0, 0.2) !important;  /* CAMBIADO A NARANJA */
     position: relative !important;
     z-index: 2 !important;
 }
 
 .magi-name {
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
     font-size: 1.3em !important;
     font-weight: bold !important;
     margin-bottom: 5px !important;
@@ -142,6 +142,7 @@ h1, h2, h3, h4, h5, h6,
     font-weight: bold !important;
 }
 
+/* COLAPROBADO Y DENEGADO - COLORES ORIGINALES */
 .status-approved {
     color: #00FFC8 !important;  /* CIAN ORIGINAL */
     text-shadow: 0 0 10px rgba(0, 255, 200, 0.7) !important;
@@ -156,8 +157,8 @@ h1, h2, h3, h4, h5, h6,
 
 /* PANEL DE DECISIÓN - ESTILO MILITAR */
 .decision-panel {
-    background: rgba(0, 0, 0, 0.9) !important;
-    border: 2px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background: rgba(0, 10, 0, 0.9) !important;
+    border: 2px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
     padding: 20px !important;
     margin: 20px 0 !important;
     position: relative !important;
@@ -170,7 +171,7 @@ h1, h2, h3, h4, h5, h6,
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: #FF6600;  /* NARANJA PRINCIPAL */
+    color: #FF6600;  /* CAMBIADO A NARANJA */
     animation: blink 1s infinite;
     font-size: 1.5em;
 }
@@ -197,9 +198,9 @@ h1, h2, h3, h4, h5, h6,
 
 /* TARJETAS DE RESPUESTA - ESTILO TERMINAL */
 .response-card {
-    background: rgba(0, 0, 0, 0.9) !important;
-    border: 1px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
-    border-left: 4px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background: rgba(0, 5, 0, 0.9) !important;
+    border: 1px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
+    border-left: 4px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
     margin: 10px 0 !important;
     padding: 15px !important;
     position: relative !important;
@@ -209,7 +210,7 @@ h1, h2, h3, h4, h5, h6,
 
 .response-card::before {
     content: ">> ";
-    color: #FF6600;  /* NARANJA PRINCIPAL */
+    color: #FF6600;  /* CAMBIADO A NARANJA */
     font-weight: bold;
     position: absolute;
     left: 5px;
@@ -217,8 +218,8 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .response-title {
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
-    border-bottom: 1px dashed #FF6600 !important;  /* NARANJA PRINCIPAL */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
+    border-bottom: 1px dashed #FF6600 !important;  /* CAMBIADO A NARANJA */
     padding-bottom: 5px !important;
     margin-bottom: 10px !important;
     font-size: 1.2em !important;
@@ -229,44 +230,44 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .response-content {
-    color: #FFCC99 !important;  /* NARANJA CLARO PARA CONTENIDO */
+    color: #CCFFCC !important;  /* VERDE CLARO ORIGINAL */
     font-family: 'Share Tech Mono', monospace !important;
     line-height: 1.6 !important;
     white-space: pre-wrap !important;
     font-size: 0.95em !important;
 }
 
-/* COLORES ESPECÍFICOS PARA CADA MAGI - COMO SOLICITADO */
+/* COLORES ESPECÍFICOS PARA CADA MAGI - COLORES ORIGINALES */
 .melchior-card {
-    border-left-color: #FFAA33 !important;  /* NARANJA DORADO PARA MELCHIOR */
+    border-left-color: #00CCFF !important;  /* CIAN ORIGINAL */
 }
 
 .balthasar-card {
-    border-left-color: #FF8800 !important;  /* NARANJA INTENSO PARA BALTHASAR */
+    border-left-color: #00FFAA !important;  /* VERDE AZULADO ORIGINAL */
 }
 
 .casper-card {
-    border-left-color: #FF5500 !important;  /* NARANJA ROJIZO PARA CASPER */
+    border-left-color: #FF6600 !important;  /* NARANJA ORIGINAL */
 }
 
 .final-card {
-    border-left-color: #FF3300 !important;  /* ROJO ANARANJADO PARA RECHAZOS/ERRORES */
+    border-left-color: #FF0000 !important;  /* ROJO ORIGINAL */
     background: rgba(20, 0, 0, 0.9) !important;
 }
 
 /* SECCIÓN DE DESCARGA */
 .download-section {
-    background: rgba(0, 0, 0, 0.9) !important;
-    border: 2px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background: rgba(0, 20, 0, 0.9) !important;
+    border: 2px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
     padding: 20px !important;
     margin: 20px 0 !important;
-    border-left: 6px solid #FF3300 !important;  /* ROJO ANARANJADO */
+    border-left: 6px solid #FF0000 !important;  /* ROJO ORIGINAL */
     position: relative !important;
     z-index: 2 !important;
 }
 
 .download-title {
-    color: #FF3300 !important;  /* ROJO ANARANJADO */
+    color: #FF0000 !important;  /* ROJO ORIGINAL */
     font-size: 1.5em !important;
     font-weight: bold !important;
     text-align: center !important;
@@ -275,7 +276,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .download-instruction {
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
     font-size: 1.1em !important;
     text-align: center !important;
     margin-bottom: 20px !important;
@@ -285,9 +286,9 @@ h1, h2, h3, h4, h5, h6,
 
 /* BOTONES - ESTILO INTERFAZ MILITAR */
 .stButton > button {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border: 1px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background: rgba(0, 20, 0, 0.8) !important;
+    border: 1px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
     font-family: 'VT323', monospace !important;
     font-size: 1.2em !important;
     border-radius: 0 !important;
@@ -298,17 +299,17 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .stButton > button:hover {
-    background: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background: #FF6600 !important;  /* CAMBIADO A NARANJA */
     color: #000000 !important;
-    box-shadow: 0 0 10px #FF6600 !important;  /* NARANJA PRINCIPAL */
+    box-shadow: 0 0 10px #FF6600 !important;  /* CAMBIADO A NARANJA */
 }
 
 /* INPUTS - ESTILO TERMINAL */
 .stTextInput > div > div > input,
 .stChatInput > div > div > textarea {
-    background: rgba(0, 0, 0, 0.9) !important;
-    border: 1px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background: rgba(0, 10, 0, 0.9) !important;
+    border: 1px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
     font-family: 'Share Tech Mono', monospace !important;
     border-radius: 0 !important;
     padding: 10px !important;
@@ -316,13 +317,13 @@ h1, h2, h3, h4, h5, h6,
     z-index: 2 !important;
 }
 
-/* LÍNEAS DECORATIVAS */
+/* LÍNEAS DECORATIVAS - NARANJA */
 .deco-line {
     height: 1px;
     background: linear-gradient(90deg, 
         transparent, 
-        #FF6600,  /* NARANJA PRINCIPAL */
-        #FF6600,  /* NARANJA PRINCIPAL */
+        #FF6600,  /* CAMBIADO A NARANJA */
+        #FF6600,  /* CAMBIADO A NARANJA */
         transparent);
     margin: 20px 0;
     opacity: 0.7;
@@ -330,23 +331,23 @@ h1, h2, h3, h4, h5, h6,
     z-index: 2;
 }
 
-/* SCROLLBAR ESTILIZADO */
+/* SCROLLBAR ESTILIZADO - NARANJA */
 ::-webkit-scrollbar {
     width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 20, 0, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #FF6600;  /* NARANJA PRINCIPAL */
+    background: #FF6600 !important;  /* CAMBIADO A NARANJA */
 }
 
-/* EFECTO DE TEXTO TIPO MÁQUINA DE ESCRIBIR */
+/* EFECTO DE TEXTO TIPO MÁQUINA DE ESCRIBIR - NARANJA */
 .typewriter {
     overflow: hidden;
-    border-right: .15em solid #FF6600;  /* NARANJA PRINCIPAL */
+    border-right: .15em solid #FF6600;  /* CAMBIADO A NARANJA */
     white-space: nowrap;
     margin: 0 auto;
     letter-spacing: .15em;
@@ -362,42 +363,42 @@ h1, h2, h3, h4, h5, h6,
 
 @keyframes blink-caret {
     from, to { border-color: transparent }
-    50% { border-color: #FF6600; }  /* NARANJA PRINCIPAL */
+    50% { border-color: #FF6600; }  /* CAMBIADO A NARANJA */
 }
 
-/* SIDEBAR ESTILO EVANGELION */
+/* SIDEBAR ESTILO EVANGELION - NARANJA */
 [data-testid="stSidebar"] {
     background-color: #000000 !important;
-    border-right: 2px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
+    border-right: 2px solid #FF6600 !important;  /* CAMBIADO A NARANJA */
 }
 
 [data-testid="stSidebar"] * {
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    color: #FF6600 !important;  /* CAMBIADO A NARANJA */
 }
 
 /* MENSAJES DE ESTADO */
 .stSuccess {
-    background-color: rgba(255, 102, 0, 0.1) !important;  /* NARANJA PRINCIPAL */
-    border: 1px solid #FF6600 !important;  /* NARANJA PRINCIPAL */
-    color: #FF6600 !important;  /* NARANJA PRINCIPAL */
+    background-color: rgba(255, 102, 0, 0.1) !important;  /* NARANJA */
+    border: 1px solid #FF6600 !important;  /* NARANJA */
+    color: #FF6600 !important;  /* NARANJA */
 }
 
 .stWarning {
-    background-color: rgba(255, 153, 0, 0.1) !important;  /* NARANJA CLARO */
-    border: 1px solid #FF9900 !important;  /* NARANJA CLARO */
-    color: #FF9900 !important;  /* NARANJA CLARO */
+    background-color: rgba(255, 204, 0, 0.1) !important;
+    border: 1px solid #FFCC00 !important;
+    color: #FFCC00 !important;
 }
 
 .stError {
-    background-color: rgba(255, 51, 0, 0.1) !important;  /* ROJO ANARANJADO */
-    border: 1px solid #FF3300 !important;  /* ROJO ANARANJADO */
-    color: #FF3300 !important;  /* ROJO ANARANJADO */
+    background-color: rgba(255, 0, 0, 0.1) !important;
+    border: 1px solid #FF0000 !important;
+    color: #FF0000 !important;
 }
 
 .stInfo {
-    background-color: rgba(255, 170, 51, 0.1) !important;  /* NARANJA DORADO */
-    border: 1px solid #FFAA33 !important;  /* NARANJA DORADO */
-    color: #FFAA33 !important;  /* NARANJA DORADO */
+    background-color: rgba(0, 204, 255, 0.1) !important;
+    border: 1px solid #00CCFF !important;
+    color: #00CCFF !important;
 }
 
 /* EFECTO DE ENTRADA DEL SISTEMA */
@@ -457,23 +458,23 @@ def limpiar_texto_para_pdf(texto):
     return texto[:1000]
 
 def crear_pdf_evangelion(dilema, m, b, c, final):
-    """Crea un PDF con estilo Evangelion naranja"""
+    """Crea un PDF con estilo Evangelion"""
     pdf = FPDF()
     pdf.add_page()
     
     # Encabezado estilo Evangelion
     pdf.set_font("Courier", "B", 18)
-    pdf.set_text_color(255, 102, 0)  # NARANJA PRINCIPAL
+    pdf.set_text_color(255, 102, 0)  # CAMBIADO A NARANJA
     pdf.cell(190, 12, "MAGI SYSTEM - DELIBERATION REPORT", ln=True, align='C')
     pdf.ln(8)
     
     # Línea decorativa
-    pdf.set_draw_color(255, 102, 0)  # NARANJA PRINCIPAL
+    pdf.set_draw_color(255, 102, 0)  # CAMBIADO A NARANJA
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(5)
     
     pdf.set_font("Courier", "", 10)
-    pdf.set_text_color(200, 150, 100)  # Naranja más claro
+    pdf.set_text_color(100, 200, 100)  # Verde más claro
     fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     pdf.cell(0, 8, f"CODE: 473 | DATE: {fecha}", ln=True)
     pdf.cell(0, 8, f"TOXICITY LEVEL: {st.session_state.toxicity_level}%", ln=True)
@@ -481,18 +482,18 @@ def crear_pdf_evangelion(dilema, m, b, c, final):
     
     # Consulta original
     pdf.set_font("Courier", "B", 12)
-    pdf.set_text_color(255, 102, 0)  # NARANJA PRINCIPAL
+    pdf.set_text_color(255, 102, 0)  # CAMBIADO A NARANJA
     pdf.cell(0, 10, "> USER QUERY:", ln=True)
     pdf.set_font("Courier", "", 10)
-    pdf.set_text_color(255, 180, 150)  # Naranja claro
+    pdf.set_text_color(150, 255, 150)
     pdf.multi_cell(0, 6, limpiar_texto_para_pdf(dilema))
     pdf.ln(10)
     
-    # Nodos con colores específicos solicitados
+    # Nodos con colores Evangelion ORIGINALES
     nodos = [
-        ("MELCHIOR-1 (SCIENCE)", limpiar_texto_para_pdf(m), 255, 170, 51),    # NARANJA DORADO (#FFAA33)
-        ("BALTHASAR-2 (MOTHER)", limpiar_texto_para_pdf(b), 255, 136, 0),    # NARANJA INTENSO (#FF8800)
-        ("CASPER-3 (WOMAN)", limpiar_texto_para_pdf(c), 255, 85, 0)          # NARANJA ROJIZO (#FF5500)
+        ("MELCHIOR-1 (SCIENCE)", limpiar_texto_para_pdf(m), 0, 204, 255),    # Cian ORIGINAL
+        ("BALTHASAR-2 (MOTHER)", limpiar_texto_para_pdf(b), 0, 255, 170),    # Verde azulado ORIGINAL
+        ("CASPER-3 (WOMAN)", limpiar_texto_para_pdf(c), 255, 102, 0)         # Naranja ORIGINAL
     ]
     
     for nombre, contenido, r, g, b in nodos:
@@ -500,27 +501,27 @@ def crear_pdf_evangelion(dilema, m, b, c, final):
         pdf.set_text_color(r, g, b)
         pdf.cell(0, 10, f">>> {nombre} <<<", ln=True)
         pdf.set_font("Courier", "", 9)
-        pdf.set_text_color(255, 180, 150)  # Naranja claro para contenido
+        pdf.set_text_color(150, 255, 150)  # Verde claro para contenido
         pdf.multi_cell(0, 5, contenido)
         pdf.ln(8)
     
     # Línea separadora
-    pdf.set_draw_color(255, 51, 0)  # ROJO ANARANJADO (#FF3300)
+    pdf.set_draw_color(255, 0, 0)  # Rojo ORIGINAL
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(10)
     
-    # Resolución final
+    # Resolución final en rojo
     pdf.set_font("Courier", "B", 14)
-    pdf.set_text_color(255, 51, 0)  # ROJO ANARANJADO (#FF3300)
+    pdf.set_text_color(255, 0, 0)  # Rojo ORIGINAL
     pdf.cell(0, 12, ">>> FINAL RESOLUTION <<<", ln=True)
     pdf.set_font("Courier", "B", 10)
-    pdf.set_text_color(255, 100, 100)  # Rojo anaranjado atenuado
+    pdf.set_text_color(200, 100, 100)  # Rojo atenuado
     pdf.multi_cell(0, 6, limpiar_texto_para_pdf(final))
     
     # Pie de página
     pdf.ln(10)
     pdf.set_font("Courier", "", 8)
-    pdf.set_text_color(100, 100, 100)  # Gris
+    pdf.set_text_color(100, 100, 100)
     pdf.cell(0, 8, "MAGI SYSTEM v3.0 | CLASSIFIED LEVEL: AAA | FOR AUTHORIZED PERSONNEL ONLY", ln=True, align='C')
     
     return pdf.output(dest='S').encode('latin-1', 'ignore')
@@ -554,7 +555,7 @@ def mostrar_secuencia_boot():
     time.sleep(1)
     placeholder.empty()
 
-# --- INTERFAZ PRINCIPAL - ESTILO EVANGELION NARANJA ---
+# --- INTERFAZ PRINCIPAL - ESTILO EVANGELION ---
 
 # Mostrar secuencia de arranque solo la primera vez
 if "boot_shown" not in st.session_state:
@@ -576,7 +577,7 @@ with col1:
     st.markdown(f"""
     <div class="magi-hexagon">
         <div class="magi-name">MELCHIOR-1</div>
-        <div style="color:#FFAA33; font-size:0.9rem">SCIENCE MODULE</div>  <!-- NARANJA DORADO -->
+        <div style="color:#00CCFF; font-size:0.9rem">SCIENCE MODULE</div>  <!-- CIAN ORIGINAL -->
         <div class="magi-status {'status-approved' if estado_mel == '承 認' else 'status-denied'}">
             {estado_mel}
         </div>
@@ -589,7 +590,7 @@ with col2:
     st.markdown(f"""
     <div class="magi-hexagon">
         <div class="magi-name">BALTHASAR-2</div>
-        <div style="color:#FF8800; font-size:0.9rem">MOTHER MODULE</div>  <!-- NARANJA INTENSO -->
+        <div style="color:#00FFAA; font-size:0.9rem">MOTHER MODULE</div>  <!-- VERDE AZULADO ORIGINAL -->
         <div class="magi-status {'status-approved' if estado_bal == '承 認' else 'status-denied'}">
             {estado_bal}
         </div>
@@ -602,7 +603,7 @@ with col3:
     st.markdown(f"""
     <div class="magi-hexagon">
         <div class="magi-name">CASPER-3</div>
-        <div style="color:#FF5500; font-size:0.9rem">WOMAN MODULE</div>  <!-- NARANJA ROJIZO -->
+        <div style="color:#FF6600; font-size:0.9rem">WOMAN MODULE</div>  <!-- NARANJA ORIGINAL -->
         <div class="magi-status {'status-approved' if estado_cas == '承 認' else 'status-denied'}">
             {estado_cas}
         </div>
@@ -613,7 +614,7 @@ with col3:
 # Panel de decisión estilo Evangelion
 decision = get_majority_decision()
 decision_class = "decision-approved" if decision == "APPROVED" else "decision-denied"
-decision_color = "#00FFC8" if decision == "APPROVED" else "#FF0000"  # Colores originales
+decision_color = "#00FFC8" if decision == "APPROVED" else "#FF0000"  # COLORES ORIGINALES
 
 st.markdown(f"""
 <div class="decision-panel {decision_class}">
@@ -702,7 +703,6 @@ if (st.session_state.magi_responses["MELCHIOR"] or
     
     # Resolución final
     if st.session_state.magi_responses["FINAL"]:
-        decision_color = "#00FFC8" if decision == "APPROVED" else "#FF0000"
         st.markdown(f"""
         <div class="response-card final-card">
             <div class="response-title">
@@ -729,7 +729,7 @@ if st.session_state.magi_responses["FINAL"]:
         </div>
     """, unsafe_allow_html=True)
     
-    # Generar PDF con estilo Evangelion naranja
+    # Generar PDF con estilo Evangelion
     pdf_bytes = crear_pdf_evangelion(
         st.session_state.magi_responses["DILEMA"],
         st.session_state.magi_responses["MELCHIOR"],
@@ -807,7 +807,7 @@ with st.sidebar:
     st.write(f"**Uptime:** `{random.randint(100, 1000)} hours`")
     st.write(f"**Neural Load:** `{random.randint(30, 90)}%`")
 
-# --- INPUT PRINCIPAL CON EFECTO NARANJA ---
+# --- INPUT PRINCIPAL CON EFECTO ---
 st.markdown("### > QUERY INPUT INTERFACE")
 st.markdown("""
 <div style='color:#FF6600; font-family:"Share Tech Mono"; margin-bottom:10px;'>
@@ -975,7 +975,7 @@ if dilema and api_key:
     except Exception as e:
         # Mostrar error con estilo Evangelion
         st.error(f"""
-        <div style='color:#FF3300; font-family:"Share Tech Mono";'>
+        <div style='color:#FF0000; font-family:"Share Tech Mono";'>
             > SYSTEM ERROR DETECTED
             > ERROR CODE: {str(e)[:100]}
             > FALLBACK PROTOCOL INITIATED
