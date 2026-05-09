@@ -584,7 +584,7 @@ with col1:
         <div class="magi-name">MELCHIOR-1</div>
         <div style="color:#00CCFF; font-size:0.9rem">SCIENCE MODULE</div>
         <div class="magi-status {'status-approved' if estado_mel == '承 認' else 'status-denied'}">{estado_mel}</div>
-        <div style="color:#888; font-size:0.8rem; margin-top:10px;">⚡ LOGIC | DATA | ANALYSIS</div>
+        <div style="color:#888; font-size:0.8rem; margin-top:10px;"> LOGIC | DATA | ANALYSIS</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -595,7 +595,7 @@ with col2:
         <div class="magi-name">BALTHASAR-2</div>
         <div style="color:#00FFAA; font-size:0.9rem">MOTHER MODULE</div>
         <div class="magi-status {'status-approved' if estado_bal == '承 認' else 'status-denied'}">{estado_bal}</div>
-        <div style="color:#888; font-size:0.8rem; margin-top:10px;">❤️ ETHICS | PROTECTION | CARE</div>
+        <div style="color:#888; font-size:0.8rem; margin-top:10px;"> ETHICS | PROTECTION | CARE</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -606,7 +606,7 @@ with col3:
         <div class="magi-name">CASPER-3</div>
         <div style="color:#FF6600; font-size:0.9rem">WOMAN MODULE</div>
         <div class="magi-status {'status-approved' if estado_cas == '承 認' else 'status-denied'}">{estado_cas}</div>
-        <div style="color:#888; font-size:0.8rem; margin-top:10px;">🌸 INTUITION | PRACTICALITY</div>
+        <div style="color:#888; font-size:0.8rem; margin-top:10px;"> INTUITION | PRACTICALITY</div>
     </div>
     """, unsafe_allow_html=True)
 
