@@ -1547,8 +1547,7 @@ if dilema and api_key:
             time.sleep(0.5)
             
             # Fase 2: Debate cruzado y extracción de decisiones reales
-             try:
-        client = Groq(api_key=api_key)
+             try: client = Groq(api_key=api_key)
         debate_system = MAGIDebateSystem(client)
         
         with st.status("🔄 MAGI DELIBERATION PROTOCOL v4.0", expanded=True) as status:
