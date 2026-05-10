@@ -715,20 +715,23 @@ if "real_decisions" not in st.session_state:
     st.session_state.real_decisions = {}
 
 # ============================================
-# ESTILOS CSS MEJORADOS (Manteniendo estética Evangelion)
+# ESTILOS CSS - MAGI ORIGINAL + MEJORAS v4.0
 # ============================================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap');
 
-/* FONDO Y TEMA MEJORADO */
+/* ============================================
+   FONDO PRINCIPAL - ESTILO EVANGELION ORIGINAL
+   ============================================ */
 .stApp {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-    color: #FF6600;
-    font-family: 'VT323', 'Share Tech Mono', monospace;
+    background-color: #000000 !important;
+    color: #FF6600 !important;  /* NARANJA CARACTERÍSTICO */
+    font-family: 'VT323', 'Share Tech Mono', monospace !important;
+    font-size: 1.1em !important;
 }
 
-/* EFECTO CRT MEJORADO */
+/* EFECTO CRT MÁS PRONUNCIADO - NARANJA */
 .stApp::before {
     content: "";
     position: fixed;
@@ -737,171 +740,571 @@ st.markdown("""
     width: 100%;
     height: 100%;
     background: 
-        repeating-linear-gradient(
-            0deg,
-            rgba(255, 102, 0, 0.03) 0px,
-            rgba(255, 102, 0, 0.03) 1px,
-            transparent 1px,
-            transparent 3px
-        ),
-        repeating-linear-gradient(
-            90deg,
-            rgba(255, 102, 0, 0.03) 0px,
-            rgba(255, 102, 0, 0.03) 1px,
-            transparent 1px,
-            transparent 3px
-        );
+        linear-gradient(rgba(255, 102, 0, 0.03) 1px, transparent 1px),  /* NARANJA */
+        linear-gradient(90deg, rgba(255, 102, 0, 0.03) 1px, transparent 1px);  /* NARANJA */
+    background-size: 3px 3px;
     pointer-events: none;
-    z-index: 1000;
+    z-index: 0;
     animation: scan 8s linear infinite;
 }
 
-/* ANIMACIONES MEJORADAS */
 @keyframes scan {
     0% { transform: translateY(-100%); }
-    100% { transform: translateY(100vh); }
+    100% { transform: translateY(100%); }
 }
 
+/* EFECTO DE PARPADEO DEL CURSOR */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* GLITCH DIGITAL OCASIONAL */
 @keyframes glitch {
     0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(-1px, -1px); }
+    60% { transform: translate(1px, 1px); }
+    80% { transform: translate(1px, -1px); }
     100% { transform: translate(0); }
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+/* CONTENIDO PRINCIPAL */
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewBlockContainer"],
+.main-content,
+.stAppViewContainer {
+    position: relative !important;
+    z-index: 1 !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    border: 1px solid #FF6600 !important;  /* NARANJA */
+    margin: 10px !important;
+    padding: 15px !important;
 }
 
-/* HEXÁGONOS MEJORADOS */
+/* ============================================
+   TÍTULOS AL ESTILO EVANGELION - NARANJA
+   ============================================ */
+h1, h2, h3, h4, h5, h6,
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
+.stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+    font-family: 'Orbitron', sans-serif !important;
+    color: #FF6600 !important;  /* NARANJA */
+    text-shadow: 0 0 5px #FF6600 !important;  /* NARANJA */
+    border-bottom: 1px solid #FF6600 !important;  /* NARANJA */
+    padding-bottom: 5px !important;
+    margin-bottom: 15px !important;
+    letter-spacing: 1px !important;
+}
+
+/* ============================================
+   HEXÁGONOS MAGI - ESTILO EVANGELION ORIGINAL
+   ============================================ */
 .magi-hexagon {
-    background: linear-gradient(135deg, rgba(0, 20, 0, 0.9) 0%, rgba(0, 40, 0, 0.9) 100%);
-    border: 2px solid #FF6600;
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    padding: 25px;
-    margin: 15px;
-    text-align: center;
+    background: rgba(0, 20, 0, 0.8) !important;
+    border: 2px solid #FF6600 !important;  /* NARANJA */
+    border-radius: 0 !important;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !important;
+    padding: 20px !important;
+    margin: 10px !important;
+    text-align: center !important;
     box-shadow: 
-        inset 0 0 20px rgba(255, 102, 0, 0.2),
-        0 0 30px rgba(255, 102, 0, 0.1);
-    transition: all 0.3s ease;
-    animation: pulse 3s infinite;
+        inset 0 0 10px rgba(255, 102, 0, 0.3),  /* NARANJA */
+        0 0 15px rgba(255, 102, 0, 0.2) !important;  /* NARANJA */
+    position: relative !important;
+    z-index: 2 !important;
 }
 
-.magi-hexagon:hover {
-    box-shadow: 
-        inset 0 0 30px rgba(255, 102, 0, 0.4),
-        0 0 50px rgba(255, 102, 0, 0.3);
-    transform: scale(1.02);
+.magi-name {
+    color: #FF6600 !important;  /* NARANJA */
+    font-size: 1.3em !important;
+    font-weight: bold !important;
+    margin-bottom: 5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
 }
 
-/* BOTONES MEJORADOS */
+.magi-status {
+    font-size: 2.5em !important;
+    font-family: 'MS Gothic', 'MS Mincho', monospace !important;
+    margin-top: 15px !important;
+    font-weight: bold !important;
+}
+
+/* ============================================
+   COLORES APROBADO Y DENEGADO - ORIGINALES
+   ============================================ */
+.status-approved {
+    color: #00FFC8 !important;  /* CIAN ORIGINAL */
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.7) !important;
+    animation: blink 2s infinite;
+}
+
+.status-denied {
+    color: #FF0000 !important;  /* ROJO ORIGINAL */
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.7) !important;
+    animation: blink 1s infinite;
+}
+
+/* ============================================
+   PANEL DE DECISIÓN - ESTILO MILITAR
+   ============================================ */
+.decision-panel {
+    background: rgba(0, 10, 0, 0.9) !important;
+    border: 2px solid #FF6600 !important;  /* NARANJA */
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.decision-panel::before {
+    content: ">";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #FF6600;  /* NARANJA */
+    animation: blink 1s infinite;
+    font-size: 1.5em;
+}
+
+.decision-text {
+    font-size: 2.5em !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    letter-spacing: 3px !important;
+    color: inherit !important;
+}
+
+.decision-approved {
+    border-color: #00FFC8 !important;  /* CIAN ORIGINAL */
+    background: rgba(0, 255, 200, 0.15) !important;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.3) !important;
+}
+
+.decision-denied {
+    border-color: #FF0000 !important;  /* ROJO ORIGINAL */
+    background: rgba(255, 0, 0, 0.15) !important;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3) !important;
+}
+
+/* ============================================
+   TARJETAS DE RESPUESTA - ESTILO TERMINAL
+   ============================================ */
+.response-card {
+    background: rgba(0, 5, 0, 0.9) !important;
+    border: 1px solid #FF6600 !important;  /* NARANJA */
+    border-left: 4px solid #FF6600 !important;  /* NARANJA */
+    margin: 10px 0 !important;
+    padding: 15px !important;
+    position: relative !important;
+    z-index: 2 !important;
+    min-height: 200px !important;
+}
+
+.response-card::before {
+    content: ">> ";
+    color: #FF6600;  /* NARANJA */
+    font-weight: bold;
+    position: absolute;
+    left: 5px;
+    top: 15px;
+}
+
+.response-title {
+    color: #FF6600 !important;  /* NARANJA */
+    border-bottom: 1px dashed #FF6600 !important;  /* NARANJA */
+    padding-bottom: 5px !important;
+    margin-bottom: 10px !important;
+    font-size: 1.2em !important;
+    font-weight: bold !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.response-content {
+    color: #FF6600 !important;  /* NARANJA */
+    font-family: 'Share Tech Mono', monospace !important;
+    line-height: 1.6 !important;
+    white-space: pre-wrap !important;
+    font-size: 0.95em !important;
+}
+
+/* ============================================
+   COLORES ESPECÍFICOS PARA CADA MAGI - ORIGINALES
+   ============================================ */
+.melchior-card {
+    border-left-color: #00CCFF !important;  /* CIAN ORIGINAL */
+}
+
+.balthasar-card {
+    border-left-color: #00FFAA !important;  /* VERDE AZULADO ORIGINAL */
+}
+
+.casper-card {
+    border-left-color: #FF6600 !important;  /* NARANJA ORIGINAL */
+}
+
+.final-card {
+    border-left-color: #FF0000 !important;  /* ROJO ORIGINAL */
+    background: rgba(20, 0, 0, 0.9) !important;
+}
+
+/* ============================================
+   SECCIÓN DE DESCARGA
+   ============================================ */
+.download-section {
+    background: rgba(0, 20, 0, 0.9) !important;
+    border: 2px solid #FF6600 !important;  /* NARANJA */
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    border-left: 6px solid #FF0000 !important;  /* ROJO ORIGINAL */
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.download-title {
+    color: #FF0000 !important;  /* ROJO ORIGINAL */
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    margin-bottom: 15px !important;
+    text-transform: uppercase !important;
+}
+
+.download-instruction {
+    color: #FF6600 !important;  /* NARANJA */
+    font-size: 1.1em !important;
+    text-align: center !important;
+    margin-bottom: 20px !important;
+    padding: 10px !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ============================================
+   BOTONES - ESTILO INTERFAZ MILITAR
+   ============================================ */
 .stButton > button {
-    background: linear-gradient(135deg, #0a1a0a 0%, #1a2a1a 100%);
-    border: 2px solid #FF6600;
-    color: #FF6600;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    padding: 12px 24px;
-    transition: all 0.3s ease;
-    clip-path: polygon(5% 0%, 95% 0%, 100% 20%, 100% 80%, 95% 100%, 5% 100%, 0% 80%, 0% 20%);
+    background: rgba(0, 20, 0, 0.8) !important;
+    border: 1px solid #FF6600 !important;  /* NARANJA */
+    color: #FF6600 !important;  /* NARANJA */
+    font-family: 'VT323', monospace !important;
+    font-size: 1.2em !important;
+    border-radius: 0 !important;
+    padding: 10px 20px !important;
+    transition: all 0.2s !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .stButton > button:hover {
-    background: linear-gradient(135deg, #FF6600 0%, #FF8800 100%);
-    color: #000000;
-    box-shadow: 0 0 30px rgba(255, 102, 0, 0.5);
-    transform: translateY(-2px);
+    background: #FF6600 !important;  /* NARANJA */
+    color: #000000 !important;
+    box-shadow: 0 0 10px #FF6600 !important;  /* NARANJA */
 }
 
-/* CARDS DE HERRAMIENTAS */
+/* ============================================
+   INPUTS - ESTILO TERMINAL
+   ============================================ */
+.stTextInput > div > div > input,
+.stChatInput > div > div > textarea {
+    background: rgba(0, 10, 0, 0.9) !important;
+    border: 1px solid #FF6600 !important;  /* NARANJA */
+    color: #FF6600 !important;  /* NARANJA */
+    font-family: 'Share Tech Mono', monospace !important;
+    border-radius: 0 !important;
+    padding: 10px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* ============================================
+   LÍNEAS DECORATIVAS - NARANJA
+   ============================================ */
+.deco-line {
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        #FF6600,  /* NARANJA */
+        #FF6600,  /* NARANJA */
+        transparent);
+    margin: 20px 0;
+    opacity: 0.7;
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================
+   SCROLLBAR ESTILIZADO - NARANJA
+   ============================================ */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 20, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #FF6600 !important;  /* NARANJA */
+}
+
+/* ============================================
+   EFECTO DE TEXTO TIPO MÁQUINA DE ESCRIBIR - NARANJA
+   ============================================ */
+.typewriter {
+    overflow: hidden;
+    border-right: .15em solid #FF6600;  /* NARANJA */
+    white-space: nowrap;
+    margin: 0 auto;
+    letter-spacing: .15em;
+    animation: 
+        typing 3.5s steps(40, end),
+        blink-caret .75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #FF6600; }  /* NARANJA */
+}
+
+/* ============================================
+   SIDEBAR ESTILO EVANGELION - NARANJA
+   ============================================ */
+[data-testid="stSidebar"] {
+    background-color: #000000 !important;
+    border-right: 2px solid #FF6600 !important;  /* NARANJA */
+}
+
+[data-testid="stSidebar"] * {
+    color: #FF6600 !important;  /* NARANJA */
+}
+
+/* ============================================
+   MENSAJES DE ESTADO
+   ============================================ */
+.stSuccess {
+    background-color: rgba(255, 102, 0, 0.1) !important;  /* NARANJA */
+    border: 1px solid #FF6600 !important;  /* NARANJA */
+    color: #FF6600 !important;  /* NARANJA */
+}
+
+.stWarning {
+    background-color: rgba(255, 204, 0, 0.1) !important;
+    border: 1px solid #FFCC00 !important;
+    color: #FFCC00 !important;
+}
+
+.stError {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+    border: 1px solid #FF0000 !important;
+    color: #FF0000 !important;
+}
+
+.stInfo {
+    background-color: rgba(0, 204, 255, 0.1) !important;
+    border: 1px solid #00CCFF !important;
+    color: #00CCFF !important;
+}
+
+/* ============================================
+   EFECTO DE ENTRADA DEL SISTEMA
+   ============================================ */
+.system-boot {
+    animation: boot-sequence 3s ease-out;
+}
+
+@keyframes boot-sequence {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   NUEVOS ESTILOS PARA v4.0 (HERRAMIENTAS)
+   ============================================ */
+
+/* PANEL DE HERRAMIENTAS DEL ASISTENTE */
+.assistant-panel {
+    background: rgba(0, 10, 20, 0.95) !important;
+    border: 1px solid #00CCFF !important;
+    border-left: 4px solid #00CCFF !important;
+    padding: 20px !important;
+    margin: 15px 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.assistant-panel::before {
+    content: "[ASSISTANT]";
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    background: #000000;
+    color: #00CCFF;
+    padding: 0 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8em;
+}
+
+/* TARJETAS DE HERRAMIENTAS */
 .tool-card {
-    background: rgba(0, 20, 0, 0.8);
-    border: 1px solid #00FFAA;
-    border-left: 4px solid #00FFAA;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 0;
-    transition: all 0.3s ease;
+    background: rgba(0, 15, 0, 0.9) !important;
+    border: 1px solid #FF6600 !important;
+    border-left: 4px solid #00FFAA !important;
+    padding: 15px !important;
+    margin: 10px 0 !important;
+    transition: all 0.3s ease !important;
 }
 
 .tool-card:hover {
-    background: rgba(0, 30, 0, 0.9);
-    border-left-width: 8px;
-    box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
+    background: rgba(0, 25, 0, 0.9) !important;
+    border-left-width: 8px !important;
+    box-shadow: 0 0 20px rgba(0, 255, 170, 0.2) !important;
 }
 
-/* BARRA DE PROGRESO MEJORADA */
+/* BARRA DE PROGRESO ESTILO EVANGELION */
 .stProgress > div > div > div {
-    background: linear-gradient(90deg, #00FFC8, #00FFAA, #FF6600);
-    animation: glitch 2s infinite;
+    background: linear-gradient(90deg, #00FFC8, #00FFAA, #FF6600) !important;
 }
 
-/* SCROLLBAR PERSONALIZADO */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: #0a0a0a;
-}
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #FF6600, #FF0000);
-    border-radius: 4px;
-}
-
-/* EFECTO DE TEXTO GLITCH */
-.glitch-text {
-    animation: glitch 0.5s infinite;
-}
-
-/* RESPONSIVE DESIGN MEJORADO */
-@media (max-width: 768px) {
-    .magi-hexagon {
-        margin: 10px 5px;
-        padding: 15px;
-    }
-    .stButton > button {
-        font-size: 0.8em;
-        padding: 8px 16px;
-    }
-}
-
-/* ESTILOS PARA VOZ Y ASISTENTE */
-.voice-active {
-    border: 2px solid #00FFC8;
-    animation: pulse 1s infinite;
-    box-shadow: 0 0 20px rgba(0, 255, 200, 0.5);
-}
-
-.assistant-panel {
-    background: rgba(0, 10, 20, 0.9);
-    border: 1px solid #00CCFF;
-    padding: 20px;
-    margin: 15px 0;
-    border-radius: 5px;
-}
-
-/* SISTEMA DE NOTIFICACIONES */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.95);
-    border: 2px solid #FF6600;
-    padding: 15px 25px;
-    z-index: 10000;
+/* NOTIFICACIONES DEL SISTEMA */
+.magi-notification {
+    background: rgba(0, 0, 0, 0.95) !important;
+    border: 2px solid #FF6600 !important;
+    border-left: 6px solid #00FFC8 !important;
+    padding: 15px 25px !important;
+    margin: 15px 0 !important;
     animation: slideIn 0.5s ease-out;
-    box-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
+    from { transform: translateX(-20px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
+}
+
+/* INDICADOR DE VOZ ACTIVA */
+.voice-active {
+    border: 2px solid #00FFC8 !important;
+    animation: pulse 1.5s infinite !important;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.5) !important;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 200, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 200, 0.7); }
+}
+
+/* PESTAÑAS DE HERRAMIENTAS */
+.stTabs [data-baseweb="tab-list"] {
+    background-color: #000000 !important;
+    border-bottom: 2px solid #FF6600 !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+    color: #FF6600 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+    background-color: transparent !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: rgba(255, 102, 0, 0.2) !important;
+    border-bottom: 2px solid #FF6600 !important;
+}
+
+/* MÉTRICAS DEL SISTEMA */
+[data-testid="stMetric"] {
+    background: rgba(0, 10, 0, 0.8) !important;
+    border: 1px solid #FF6600 !important;
+    padding: 10px !important;
+}
+
+[data-testid="stMetric"] label {
+    color: #FF6600 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+}
+
+[data-testid="stMetric"] div {
+    color: #00FFC8 !important;
+}
+
+/* EXPANDERS */
+.stExpander {
+    background: rgba(0, 10, 0, 0.8) !important;
+    border: 1px solid #FF6600 !important;
+}
+
+.stExpander summary {
+    color: #FF6600 !important;
+    font-family: 'Orbitron', sans-serif !important;
+}
+
+/* SLIDER */
+.stSlider > div > div > div > div {
+    background-color: #FF6600 !important;
+}
+
+/* SELECTBOX */
+.stSelectbox > div > div {
+    background-color: rgba(0, 10, 0, 0.9) !important;
+    color: #FF6600 !important;
+    border: 1px solid #FF6600 !important;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+    .magi-hexagon {
+        margin: 10px 5px !important;
+        padding: 15px !important;
+    }
+    
+    .stButton > button {
+        font-size: 1em !important;
+        padding: 8px 16px !important;
+    }
+    
+    .decision-text {
+        font-size: 2em !important;
+    }
+}
+
+/* EFECTO HOLOGRÁFICO PARA PANELES IMPORTANTES */
+.holographic {
+    background: 
+        linear-gradient(135deg, 
+            rgba(0, 20, 30, 0.9) 0%, 
+            rgba(0, 40, 50, 0.8) 50%, 
+            rgba(0, 20, 30, 0.9) 100%) !important;
+    border: 1px solid rgba(0, 204, 255, 0.5) !important;
+    box-shadow: 
+        0 0 20px rgba(0, 204, 255, 0.2),
+        inset 0 0 20px rgba(0, 204, 255, 0.1) !important;
+}
+
+/* TEXTO GLITCH PARA ALERTAS */
+.glitch-text {
+    animation: glitch 0.3s infinite;
+    color: #FF0000 !important;
+    text-shadow: 
+        2px 2px 0 #FF6600,
+        -2px -2px 0 #00CCFF !important;
+}
+
+/* CÓDIGO Y LOGS */
+code, pre {
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: #00FFC8 !important;
+    border: 1px solid #00FFC8 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+    padding: 2px 6px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1597,6 +2000,30 @@ if dilema and api_key:
             
             final_decision_text = deliberation_result["final_decision"]["decision"].value
             
+                        # Fase 4: Resolución final integrada
+            st.write(progress_messages[5][0])
+            
+            final_decision_text = deliberation_result["final_decision"]["decision"].value
+            
+            # CORRECCIÓN: Convertir NodeType a strings para serialización
+            real_decisions_serializable = {}
+            for k, v in real_decisions.items():
+                key_str = k.value if hasattr(k, 'value') else str(k)
+                # Convertir DecisionType a string
+                v_serializable = {}
+                for vk, vv in v.items():
+                    if hasattr(vv, 'value'):
+                        v_serializable[vk] = vv.value
+                    else:
+                        v_serializable[vk] = vv
+                real_decisions_serializable[key_str] = v_serializable
+            
+            # CORRECCIÓN: Convertir críticas para serialización
+            critiques_serializable = {}
+            for k, v in critiques.items():
+                key_str = k.value if hasattr(k, 'value') else str(k)
+                critiques_serializable[key_str] = v[:300]  # Truncar para prompt
+            
             completion_final = client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": f"""Eres el sistema MAGI integrado v4.0 AWAKENING.
@@ -1608,10 +2035,10 @@ if dilema and api_key:
                     CASPER-3 (Intuitivo): {c_resp[:1000]}
                     
                     CRÍTICAS CRUZADAS:
-                    {json.dumps(critiques, indent=2)[:500]}
+                    {json.dumps(critiques_serializable, indent=2, ensure_ascii=False)}
                     
                     DECISIONES INDIVIDUALES:
-                    {json.dumps({k.value: v for k, v in real_decisions.items()}, default=str)}
+                    {json.dumps(real_decisions_serializable, indent=2, ensure_ascii=False)}
                     
                     Basado en todo esto, la decisión ponderada es: {final_decision_text}
                     Confianza del sistema: {deliberation_result['final_decision']['confidence']:.2%}
@@ -1633,21 +2060,25 @@ if dilema and api_key:
             final_resp = completion_final.choices[0].message.content
             st.session_state.magi_responses["FINAL"] = final_resp
             
-            # Guardar en memoria
+            # Guardar en memoria (CORREGIDO: usar strings como keys)
             st.session_state.magi_memory.store(
                 f"decision_{datetime.datetime.now().timestamp()}",
                 {
                     "dilemma": dilema,
                     "decision": final_decision_text,
                     "confidence": deliberation_result["final_decision"]["confidence"],
-                    "quality": deliberation_result["deliberation_quality"]
+                    "quality": deliberation_result["deliberation_quality"],
+                    "magi_votes": real_decisions_serializable
                 },
                 importance=0.9,
                 tags=["decision", final_decision_text.lower(), deliberation_result["deliberation_quality"]]
             )
             
-            progress_bar.progress(progress_messages[5][1])
-            time.sleep(0.5)
+            # Almacenar para uso posterior (CORREGIDO)
+            st.session_state.real_decisions = real_decisions_serializable
+            st.session_state.final_decision = final_decision_text
+            st.session_state.final_confidence = deliberation_result["final_decision"]["confidence"]
+            st.session_state.deliberation_quality = deliberation_result["deliberation_quality"]
             
             status.update(
                 label=f"✅ DELIBERATION COMPLETE - VERDICT: {final_decision_text}", 
