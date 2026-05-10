@@ -1547,15 +1547,106 @@ if dilema and api_key:
             time.sleep(0.5)
             
             # Fase 2: Debate cruzado y extracción de decisiones reales
-             try: client = Groq(api_key=api_key)
-        debate_system = MAGIDebateSystem(client)
-        
-        with st.status("🔄 MAGI DELIBERATION PROTOCOL v4.0", expanded=True) as status:
-            progress_bar = st.progress(0)
+            st.write(progress_messages[3][0])
             
-            # ... (todo el código de procesamiento se mantiene igual)
+            analyses_dict = {
+                NodeType.MELCHIOR: m_resp,
+                NodeType.BALTHASAR: b_resp,
+                NodeType.CASPER: c_resp
+            }
             
-            progress_bar.progress(100)
+            # Extraer decisiones reales (NO aleatorias)
+            real_decisions = {}
+            for node, analysis in analyses_dict.items():
+                decision_type, confidence = debate_system.extract_decision_from_analysis(analysis)
+                real_decisions[node] = {
+                    "decision": decision_type,
+                    "confidence": confidence,
+                    "vote": "承 認" if decision_type == DecisionType.APPROVED else "否 定"
+                }
+            
+            st.session_state.real_decisions = real_decisions
+            
+            # Actualizar estados basados en decisiones reales
+            for node_name in st.session_state.magi_states:
+                node_enum = NodeType[node_name]
+                st.session_state.magi_states[node_name] = real_decisions[node_enum]["vote"]
+            
+            # Debate cruzado
+            critiques = debate_system.cross_examine_nodes(analyses_dict, dilema)
+            
+            # Almacenar críticas para mostrar
+            st.session_state.magi_critiques = critiques
+            
+            progress_bar.progress(progress_messages[3][1])
+            time.sleep(1)
+            
+            # Fase 3: Meta-análisis y síntesis final
+            st.write(progress_messages[4][0])
+            
+            deliberation_result = debate_system.hierarchical_synthesis(analyses_dict, dilema)
+            st.session_state.deliberation_quality = deliberation_result["deliberation_quality"]
+            st.session_state.final_confidence = deliberation_result["final_decision"]["confidence"]
+            st.session_state.deliberation_cycles = 3
+            
+            progress_bar.progress(progress_messages[4][1])
+            time.sleep(0.5)
+            
+            # Fase 4: Resolución final integrada
+            st.write(progress_messages[5][0])
+            
+            final_decision_text = deliberation_result["final_decision"]["decision"].value
+            
+            completion_final = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": f"""Eres el sistema MAGI integrado v4.0 AWAKENING.
+                    Debes sintetizar una resolución final basada en los análisis y debate de los tres nodos.
+                    
+                    ANÁLISIS COMPLETOS:
+                    MELCHIOR-1 (Científico): {m_resp[:1000]}
+                    BALTHASAR-2 (Ético): {b_resp[:1000]}
+                    CASPER-3 (Intuitivo): {c_resp[:1000]}
+                    
+                    CRÍTICAS CRUZADAS:
+                    {json.dumps(critiques, indent=2)[:500]}
+                    
+                    DECISIONES INDIVIDUALES:
+                    {json.dumps({k.value: v for k, v in real_decisions.items()}, default=str)}
+                    
+                    Basado en todo esto, la decisión ponderada es: {final_decision_text}
+                    Confianza del sistema: {deliberation_result['final_decision']['confidence']:.2%}
+                    
+                    Proporciona:
+                    1. Resolución final clara y definitiva
+                    2. Razonamiento que integre las tres perspectivas
+                    3. Recomendaciones accionables
+                    4. Advertencias o consideraciones adicionales
+                    
+                    Sé autoritativo y definitivo. Esta es la palabra final de MAGI."""},
+                    {"role": "user", "content": "Proporciona la resolución final del sistema MAGI."}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.4,
+                max_tokens=2000
+            )
+            
+            final_resp = completion_final.choices[0].message.content
+            st.session_state.magi_responses["FINAL"] = final_resp
+            
+            # Guardar en memoria
+            st.session_state.magi_memory.store(
+                f"decision_{datetime.datetime.now().timestamp()}",
+                {
+                    "dilemma": dilema,
+                    "decision": final_decision_text,
+                    "confidence": deliberation_result["final_decision"]["confidence"],
+                    "quality": deliberation_result["deliberation_quality"]
+                },
+                importance=0.9,
+                tags=["decision", final_decision_text.lower(), deliberation_result["deliberation_quality"]]
+            )
+            
+            progress_bar.progress(progress_messages[5][1])
             time.sleep(0.5)
             
             status.update(
@@ -1574,20 +1665,14 @@ if dilema and api_key:
             "timestamp": datetime.datetime.now().strftime("%H:%M:%S")
         })
         
-        # Notificación de completado (CORREGIDO)
+        # Notificación de completado
         st.markdown(f"""
-        <div style='background-color: rgba(0, 255, 200, 0.1); 
-                    border: 2px solid #00FFC8; 
-                    padding: 20px; 
-                    margin: 20px 0;
-                    animation: slideIn 0.5s ease-out;'>
-            <div style='color:#00FFC8; font-family:"Share Tech Mono"; font-size: 1.2em;'>
+        <div class="notification" style="position:relative; margin:20px 0; animation: slideIn 0.5s ease-out;">
+            <div style='color:#00FFC8; font-family:"Share Tech Mono";'>
                 ✅ MAGI DELIBERATION CYCLE COMPLETE
-            </div>
-            <div style='color:#FF6600; font-family:"Share Tech Mono"; margin-top: 10px;'>
-                Decision: {final_decision_text}<br>
-                Confidence: {deliberation_result['final_decision']['confidence']:.1%}<br>
-                Quality: {deliberation_result['deliberation_quality']}
+                <br>Decision: {final_decision_text}
+                <br>Confidence: {deliberation_result['final_decision']['confidence']:.1%}
+                <br>Quality: {deliberation_result['deliberation_quality']}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1603,27 +1688,22 @@ if dilema and api_key:
         st.rerun()
         
     except Exception as e:
-        # Mostrar error con estilo Evangelion (CORREGIDO)
+        # Mostrar error con estilo Evangelion
         st.markdown(f"""
         <div style='background-color: rgba(255, 0, 0, 0.1); 
-                    border: 2px solid #FF0000; 
-                    padding: 25px; 
-                    margin: 20px 0;
-                    border-left: 6px solid #FF0000;'>
-            <div style='color:#FF0000; font-family:"Share Tech Mono"; font-size: 1.5em; 
-                        text-shadow: 0 0 10px rgba(255,0,0,0.5);'>
+                    border: 1px solid #FF0000; 
+                    padding: 20px; 
+                    border-radius: 5px;
+                    margin: 20px 0;'>
+            <div style='color:#FF0000; font-family:"Share Tech Mono"; font-size: 1.2em;'>
                 >>> CRITICAL SYSTEM ERROR <<<
             </div>
-            <div style='color:#FF6600; font-family:"Share Tech Mono"; margin-top: 15px; 
-                        font-size: 1.1em; padding: 10px; background: rgba(0,0,0,0.3);'>
-                ERROR: {str(e)[:200]}
+            <div style='color:#FF6600; font-family:"Share Tech Mono"; margin-top: 10px;'>
+                ERROR CODE: {str(e)[:200]}
             </div>
-            <div style='color:#FFCC00; font-family:"Share Tech Mono"; margin-top: 15px;'>
+            <div style='color:#FFCC00; font-family:"Share Tech Mono"; margin-top: 10px;'>
                 >>> FALLBACK PROTOCOLS ENGAGED <<<
             </div>
-            <div style='color:#888; font-family:"Share Tech Mono"; margin-top: 10px; font-size: 0.9em;'>
-                SYSTEM RECOVERING... PLEASE RETRY OPERATION
-            </div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1632,19 +1712,7 @@ if dilema and api_key:
         st.session_state.magi_responses["BALTHASAR"] = f"> BALTHASAR ANALYSIS: Ethical protocols interrupted. Defaulting to protective stance."
         st.session_state.magi_responses["CASPER"] = f"> CASPER ANALYSIS: Intuitive systems compromised. Practical assessment pending."
         st.session_state.magi_responses["FINAL"] = f"> INTEGRATED RESPONSE: System error has compromised full deliberation. Manual override recommended."
-        <div style='color:#FF0000; font-family:"Share Tech Mono";'>
-            >>> CRITICAL SYSTEM ERROR <<<
-            ERROR: {str(e)[:200]}
-            >>> FALLBACK PROTOCOLS ENGAGED <<<
-        </div>
-        """, unsafe_allow_html=True)
         
-        # Fallback robusto
-        st.session_state.magi_responses["MELCHIOR"] = f"> MELCHIOR ANALYSIS: System perturbation detected. Recommend cautious analysis of: {dilema[:50]}..."
-        st.session_state.magi_responses["BALTHASAR"] = f"> BALTHASAR ANALYSIS: Ethical protocols interrupted. Defaulting to protective stance."
-        st.session_state.magi_responses["CASPER"] = f"> CASPER ANALYSIS: Intuitive systems compromised. Practical assessment pending."
-        st.session_state.magi_responses["FINAL"] = f"> INTEGRATED RESPONSE: System error has compromised full deliberation. Manual override recommended."
-
 # ============================================
 # PANEL DE ASISTENTE VIRTUAL (NUEVO)
 # ============================================
